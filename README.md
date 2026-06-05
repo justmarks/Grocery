@@ -4,8 +4,8 @@ A shared household grocery list PWA for planning trips and shopping efficiently 
 
 ## What it does
 
-- **Plan** in *write mode*: add items with a count, tag them by aisle and by which stores carry them.
-- **Shop** in *read mode*: items grouped by store, big checkboxes, one-tap checkoff.
+- **Plan** in *write mode*: add items with a count, tag them by aisle and by which stores carry them. Items always appear in **store-section order** — produce, dairy, freezer, dry goods, etc. — using your household's section ranking.
+- **Shop** in *read mode*: same section order so you walk the store top-to-bottom; sticky single-store filter narrows to one store at a time; big checkboxes, one-tap checkoff.
 - **Share** with your household — every member sees and edits the same single list in real time. Sharing model mirrors RecipeTracker's `sharedWith` + `autoShares` pattern.
 - **Remembers** what you've bought: typing "lemons" autocompletes with its usual aisle and stores.
 - **Imports** from RecipeTracker meal plans via deep link (`/import?source=mealplan&payload=…`).

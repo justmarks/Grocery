@@ -54,9 +54,8 @@ RecipeTracker defines `isValidRecipe(data)` and `isValidMealPlan(data)` helpers 
 ### Firestore composite indexes
 
 RecipeTracker declares two composite indexes in `firestore.indexes.json` for queries that combine equality + ordering. For Grocery, anticipate:
-- `(category ASC, addedAt DESC)` — group-by-category view
-- `(stores arrayContains, addedAt DESC)` — store-filtered shopping view
-- `(checked ASC, addedAt DESC)` — separating unchecked from checked
+- `(addedAt ASC)` — single-field, no composite needed; the primary items listener uses this and the client ranks sections via `categoryOrder` on the household
+- `(stores arrayContains, addedAt ASC)` — when the sticky store filter shifts to a server-side query at scale (defer until needed; ~200 items fits comfortably in a single fetch + client-side filter)
 - `(searchTokens arrayContainsAny)` doesn't need composite indexing but the field must exist on every catalog entry
 
 Add to `firestore.indexes.json` when the first listener that needs them is wired up; Firestore will emit a "create index" link in the error message if one is missing.
@@ -169,6 +168,14 @@ invites/{inviteId}
 
 **Why `quantity: number`:** user's explicit decision. Default 1. Imported meal-plan items: `quantity = 1`, `text = "Yellow onions (3 medium)"` (the count stays in the human-readable text — the import doesn't try to extract a number from `"3 medium"`).
 
+### Canonical item sort order: by section
+
+Items are always ordered **by grocery-store section** (i.e., by `category`, ranked using `households/{id}.categoryOrder`), then by `addedAt ASC` within a section. This is the primary user-visible order in both write and shopping modes — not addedAt, not alphabetical. The reasoning: when shopping, you walk the store section by section, and when planning you mentally group "what produce do we need / what dairy do we need." Either way, section is the dominant axis.
+
+Implementation: the items listener fetches with `orderBy("addedAt", "asc")` and the client groups + ranks sections by `categoryOrder` (which lives on the household doc). At ~200 items per household max, client-side ranking is instant and avoids denormalizing a `categoryRank` integer onto every item.
+
+The "group by store" toggle remains available as an alternate view (some users prefer to see "everything at Costco" as one block), but it is not the default in either mode. Within each store group, sub-grouping still falls back to section order.
+
 ## Security rules sketch
 
 Validation helpers go in the file (mirroring RecipeTracker's `isValidRecipe`) — required fields, type checks, size caps, tolerant `(!('x' in data) || data.x is list)` pattern for optional fields:
@@ -274,10 +281,10 @@ Each phase ends in something usable on a real device. Don't move on until the cu
 - Mobile-friendly forms, empty state
 
 ### Phase 4 — Grouping & view modes
-- Toggle: group by **Category** (aisle) or **Store**
-- Store grouping shows items with multiple stores in each relevant section, with visual indicator
+- **Default order: by section.** Items grouped under category headers in the order defined by `households/{id}.categoryOrder`; within a section, items sort by `addedAt ASC`. This is the default in both write and shopping modes.
+- Alternate view: group by **Store** (toggle). Items with multiple stores appear in each relevant store group, with visual indicator. Within a store group, sub-order is still by section.
 - Section headers collapse/expand, empty sections hidden
-- Reorder categories within the household (writes to `households/{id}.categoryOrder`)
+- Drag-to-reorder categories within the household (writes to `households/{id}.categoryOrder`) — the same array is the rank source for the items view
 
 ### Phase 5 — Catalog + autocomplete
 - On item save, upsert into `households/{id}/catalog/{textLowerId}` with prefix `searchTokens`
@@ -287,9 +294,9 @@ Each phase ends in something usable on a real device. Don't move on until the cu
 
 ### Phase 6 — Shopping (read) mode
 - Top-of-screen mode toggle, visually distinct
-- Default group in shopping mode: by **store**
-- Tap-to-check: item strikethrough + floats to bottom of group
-- **Sticky store filter** — single chip at the top of shopping mode ("All stores" / "Trader Joe's" / "Costco" / …). Selecting a store filters the visible items to those that include it in their `stores` array; selection persists in local storage so reopening the app at the store keeps the filter. Same mode, not a separate sub-mode.
+- **Default order: by section** (same as write mode) — when you walk into the store you want to see Produce first, then your way through to the freezer. The section-by-section walk is the whole point of categorizing items.
+- Tap-to-check: item strikethrough + floats to bottom of its section (still inside the section header — doesn't migrate to a global "checked" bucket)
+- **Sticky store filter** — single chip at the top of shopping mode ("All stores" / "Trader Joe's" / "Costco" / …). Selecting a store filters the visible items to those that include it in their `stores` array; section ordering still organizes what remains. Selection persists in local storage so reopening the app at the store keeps the filter. Same mode, not a separate sub-mode.
 - "End trip" → bulk clear checked, or keep for next trip
 
 ### Phase 7 — Household sharing (invites)
@@ -304,7 +311,7 @@ Each phase ends in something usable on a real device. Don't move on until the cu
 - Route `/import` accepts `?source=mealplan&payload=<encoded>`
 - Decode, validate against vendored `GroceryListSchema`, reject on `schemaVersion` mismatch
 - If user has no household, route through household-create first, then resume import
-- Preview screen: items grouped by category, per-item store dropdown, bulk "apply <store> to all" action
+- Preview screen: items pre-sorted into the household's section order (so review mirrors how they'll appear when shopping), per-item store dropdown, bulk "apply <store> to all" action
 - Catalog lookup prefills stores for known items
 - Batched commit to `households/{id}/items` with `quantity: 1`, `source: "mealplan"`, `sourceRef: { mealPlanId }`
 - *(Companion change in RecipeTracker — defer)*: add "Send to Grocery" button in meal-plan view that builds the URL and `window.open`s it
