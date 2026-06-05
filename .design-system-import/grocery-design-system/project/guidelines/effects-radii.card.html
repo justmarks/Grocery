@@ -1,0 +1,21 @@
+<!-- @dsCard group="Spacing" viewport="700x160" name="Radii & shadows" subtitle="4–20px radii; warm ink-tinted elevation" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; background: var(--bg-page); padding: 24px; }
+  .row { display: flex; gap: 22px; align-items: center; }
+  .box { width: 88px; height: 76px; background: var(--bg-card); display: flex; align-items: flex-end; padding: 7px; }
+  .lbl { font-family: var(--font-mono); font-size: 10px; color: var(--ink-500); }
+  .sep { width: 1px; height: 76px; background: var(--border-faint); }
+</style></head>
+<body>
+<div class="row">
+  <div class="box" style="border-radius:var(--radius-sm);box-shadow:var(--shadow-xs)"><span class="lbl">sm·4</span></div>
+  <div class="box" style="border-radius:var(--radius-md);box-shadow:var(--shadow-sm)"><span class="lbl">md·8</span></div>
+  <div class="box" style="border-radius:var(--radius-lg);box-shadow:var(--shadow-md)"><span class="lbl">lg·14</span></div>
+  <div class="box" style="border-radius:var(--radius-xl);box-shadow:var(--shadow-lg)"><span class="lbl">xl·20</span></div>
+  <div class="sep"></div>
+  <div class="box" style="border-radius:var(--radius-pill);box-shadow:var(--shadow-sm);width:76px"><span class="lbl">pill</span></div>
+</div>
+</body></html>

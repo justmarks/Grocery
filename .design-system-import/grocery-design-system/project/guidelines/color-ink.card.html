@@ -1,0 +1,19 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Ink — warm text" subtitle="Warm near-black text ramp; never pure black or cool gray" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; background: var(--bg-page); padding: 20px; }
+  .ramp { display: flex; gap: 0; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); }
+  .sw { flex: 1; height: 84px; display: flex; flex-direction: column; justify-content: flex-end; padding: 8px; }
+  .sw span { font-family: var(--font-mono); font-size: 10px; }
+</style></head>
+<body>
+<div class="ramp">
+  <div class="sw" style="background:var(--ink-900)"><span style="color:#fbf6ee">900</span><span style="color:#b0a08d">#2a1f18</span></div>
+  <div class="sw" style="background:var(--ink-700)"><span style="color:#fbf6ee">700</span><span style="color:#d9caae">#463528</span></div>
+  <div class="sw" style="background:var(--ink-500)"><span style="color:#fbf6ee">500</span><span style="color:#eadfc9">#7b6655</span></div>
+  <div class="sw" style="background:var(--ink-300)"><span style="color:#2a1f18">300</span><span style="color:#463528">#b0a08d</span></div>
+  <div class="sw" style="background:var(--ink-100)"><span style="color:#2a1f18">100</span><span style="color:#7b6655">#e5dccc</span></div>
+</div>
+</body></html>

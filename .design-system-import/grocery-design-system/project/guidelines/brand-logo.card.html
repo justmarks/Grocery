@@ -1,0 +1,28 @@
+<!-- @dsCard group="Brand" viewport="700x230" name="Brand monogram & lockup" subtitle="Tomato grocery-list mark; the Marks Family / Grocery wordmark" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; background: var(--bg-page); padding: 24px; }
+  .row { display: flex; align-items: center; gap: 40px; }
+  .mark { display: flex; align-items: center; gap: 10px; }
+  .wm { display: flex; flex-direction: column; line-height: 1.15; white-space: nowrap; }
+  .wm .l1 { font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--ink-900); }
+  .wm .l2 { font-family: var(--font-display); font-style: italic; font-size: 14px; color: var(--tomato-500); }
+  .onpaper { background: var(--paper-300); padding: 18px 22px; border-radius: var(--radius-lg); }
+  .onink { background: var(--ink-900); padding: 18px 22px; border-radius: var(--radius-lg); }
+  .onink .l1 { color: var(--paper-100); }
+</style></head>
+<body>
+<div class="row">
+  <img src="../assets/brand/grocery-icon.svg" width="72" height="72" alt="Grocery icon" />
+  <div class="onpaper mark">
+    <img src="../assets/brand/grocery-icon.svg" width="40" height="40" alt="" />
+    <div class="wm"><span class="l1">Marks Family</span><span class="l2">Grocery</span></div>
+  </div>
+  <div class="onink mark">
+    <img src="../assets/brand/grocery-icon.svg" width="40" height="40" alt="" />
+    <div class="wm"><span class="l1">Marks Family</span><span class="l2">Grocery</span></div>
+  </div>
+</div>
+</body></html>

@@ -1,0 +1,23 @@
+/* =============================================================
+   Grocery — Spacing Tokens
+   4px base grid. Mobile-first: rows are generously tappable (44px
+   minimum hit target), sections breathe, but density stays high
+   enough that a full week's list fits in a few thumb-scrolls.
+   ============================================================= */
+
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* Minimum interactive target — checkboxes, tab-bar items, buttons. */
+  --tap-target: 44px;
+}

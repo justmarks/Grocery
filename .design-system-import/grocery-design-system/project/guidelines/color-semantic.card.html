@@ -1,0 +1,19 @@
+<!-- @dsCard group="Colors" viewport="700x130" name="Semantic state colors" subtitle="Success / warning / danger / info, each a bg + fg pair" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; background: var(--bg-page); padding: 20px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .st { border-radius: var(--radius-md); padding: 14px; }
+  .st b { font-family: var(--font-sans); font-size: 13px; display: block; }
+  .st code { font-family: var(--font-mono); font-size: 10px; opacity: .8; }
+</style></head>
+<body>
+<div class="grid">
+  <div class="st" style="background:var(--success-bg)"><b style="color:var(--success-fg)">Success</b><code style="color:var(--success-fg)">olive · got it</code></div>
+  <div class="st" style="background:var(--warning-bg)"><b style="color:var(--warning-fg)">Warning</b><code style="color:var(--warning-fg)">saffron</code></div>
+  <div class="st" style="background:var(--danger-bg)"><b style="color:var(--danger-fg)">Danger</b><code style="color:var(--danger-fg)">tomato</code></div>
+  <div class="st" style="background:var(--info-bg)"><b style="color:var(--info-fg)">Info</b><code style="color:var(--info-fg)">sky</code></div>
+</div>
+</body></html>

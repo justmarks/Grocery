@@ -1,0 +1,40 @@
+/* =============================================================
+   Grocery — Webfonts
+   Self-hosted variable fonts shared with the Marks Family Recipe
+   Book (sibling app). Newsreader is the editorial serif used for
+   the wordmark + section headers; Manrope is the workhorse UI sans;
+   JetBrains Mono carries counts, quantities, and tabular numerals.
+   ============================================================= */
+
+@font-face {
+  font-family: "Newsreader";
+  src: url("../assets/fonts/Newsreader-VariableFont_opsz_wght.ttf")
+    format("truetype-variations");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Newsreader";
+  src: url("../assets/fonts/Newsreader-Italic-VariableFont_opsz_wght.ttf")
+    format("truetype-variations");
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("../assets/fonts/Manrope-VariableFont_wght.ttf")
+    format("truetype-variations");
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("../assets/fonts/JetBrainsMono-VariableFont_wght.ttf")
+    format("truetype-variations");
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}

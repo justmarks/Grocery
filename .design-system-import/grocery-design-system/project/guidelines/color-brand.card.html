@@ -1,0 +1,41 @@
+<!-- @dsCard group="Colors" viewport="700x180" name="Brand hues — Tomato, Olive, Saffron, Plum" subtitle="Tomato = primary; Olive = the shopping 'done' green" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; background: var(--bg-page); padding: 20px; }
+  .group { display: flex; flex-direction: column; gap: 8px; }
+  .row { display: flex; gap: 10px; }
+  .fam { flex: 1; }
+  .famname { font-family: var(--font-sans); font-size: 11px; font-weight: 600; color: var(--ink-700); margin-bottom: 5px; }
+  .chips { display: flex; border-radius: var(--radius-sm); overflow: hidden; }
+  .chip { flex: 1; height: 52px; }
+</style></head>
+<body>
+<div class="row">
+  <div class="fam"><div class="famname">Tomato · primary</div><div class="chips">
+    <div class="chip" style="background:var(--tomato-100)"></div>
+    <div class="chip" style="background:var(--tomato-300)"></div>
+    <div class="chip" style="background:var(--tomato-500)"></div>
+    <div class="chip" style="background:var(--tomato-700)"></div>
+    <div class="chip" style="background:var(--tomato-900)"></div></div></div>
+  <div class="fam"><div class="famname">Olive · done</div><div class="chips">
+    <div class="chip" style="background:var(--olive-100)"></div>
+    <div class="chip" style="background:var(--olive-300)"></div>
+    <div class="chip" style="background:var(--olive-500)"></div>
+    <div class="chip" style="background:var(--olive-700)"></div>
+    <div class="chip" style="background:var(--olive-900)"></div></div></div>
+</div>
+<div class="row" style="margin-top:12px">
+  <div class="fam"><div class="famname">Saffron · highlight</div><div class="chips">
+    <div class="chip" style="background:var(--saffron-100)"></div>
+    <div class="chip" style="background:var(--saffron-300)"></div>
+    <div class="chip" style="background:var(--saffron-500)"></div>
+    <div class="chip" style="background:var(--saffron-700)"></div></div></div>
+  <div class="fam"><div class="famname">Plum · accent</div><div class="chips">
+    <div class="chip" style="background:var(--plum-100)"></div>
+    <div class="chip" style="background:var(--plum-300)"></div>
+    <div class="chip" style="background:var(--plum-500)"></div>
+    <div class="chip" style="background:var(--plum-700)"></div></div></div>
+</div>
+</body></html>

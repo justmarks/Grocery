@@ -1,0 +1,84 @@
+<!-- @dsCard group="Components" viewport="700x430" name="Core — Brand, Buttons, Avatars" subtitle="Brand lockup, button variants, icon buttons, avatars" -->
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="../../styles.css" />
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script src="../../_ds_bundle.js"></script>
+<style>
+  body { margin: 0; background: var(--bg-page); padding: 24px; }
+  .grid { display: flex; flex-direction: column; gap: 22px; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+  .lbl { font-family: var(--font-sans); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; color: var(--ink-300); margin-bottom: 8px; }
+  .iconwrap { display: flex; flex-wrap: wrap; gap: 14px; color: var(--ink-700); }
+  .iconcell { display: flex; flex-direction: column; align-items: center; gap: 4px; width: 56px; }
+  .iconcell small { font-family: var(--font-mono); font-size: 9px; color: var(--ink-300); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+  const { Brand, Button, IconButton, Avatar, Icon, ICON_NAMES } = window.GroceryDesignSystem_df55be;
+  function Card() {
+    return (
+      <div className="grid">
+        <div>
+          <div className="lbl">Brand</div>
+          <div className="row" style={{ gap: 40 }}>
+            <Brand />
+            <Brand variant="mark" size={40} />
+          </div>
+        </div>
+        <div>
+          <div className="lbl">Buttons</div>
+          <div className="row">
+            <Button>Add item</Button>
+            <Button variant="secondary" icon="store">Stores</Button>
+            <Button variant="success" icon="check">End trip</Button>
+            <Button variant="ghost" icon="plus">Add another</Button>
+            <Button variant="danger" icon="trash">Remove</Button>
+            <Button disabled>Disabled</Button>
+          </div>
+        </div>
+        <div className="row" style={{ gap: 40 }}>
+          <div>
+            <div className="lbl">Icon buttons</div>
+            <div className="row">
+              <IconButton icon="pencil" aria-label="Edit" />
+              <IconButton icon="trash" variant="danger" aria-label="Delete" />
+              <IconButton icon="settings" aria-label="Settings" />
+              <IconButton icon="share-2" aria-label="Share" />
+            </div>
+          </div>
+          <div>
+            <div className="lbl">Avatars</div>
+            <div className="row">
+              <Avatar name="Justin Marks" />
+              <Avatar name="Sarah Park" />
+              <Avatar name="Theo" size={40} />
+              <Avatar name="Mara Lee" size={40} />
+            </div>
+          </div>
+        </div>
+        <div>
+          <div className="lbl">Icons</div>
+          <div className="iconwrap">
+            {ICON_NAMES.map((n) => (
+              <div className="iconcell" key={n}>
+                <Icon name={n} size={22} />
+                <small>{n}</small>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  ReactDOM.createRoot(document.getElementById("root")).render(<Card />);
+</script>
+</body>
+</html>

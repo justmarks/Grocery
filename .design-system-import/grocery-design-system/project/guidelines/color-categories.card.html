@@ -1,0 +1,26 @@
+<!-- @dsCard group="Colors" viewport="700x190" name="Aisle category colors" subtitle="Each grocery aisle owns one color the shopper learns to scan for" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; background: var(--bg-page); padding: 20px; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .cat { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: var(--radius-md); }
+  .dot { width: 12px; height: 12px; border-radius: 999px; flex: none; }
+  .cat span { font-family: var(--font-sans); font-size: 12px; font-weight: 600; }
+</style></head>
+<body>
+<div class="grid">
+  <div class="cat" style="background:var(--cat-fruits-bg)"><span class="dot" style="background:var(--cat-fruits-mid)"></span><span style="color:var(--cat-fruits-fg)">Fruits</span></div>
+  <div class="cat" style="background:var(--cat-vegetables-bg)"><span class="dot" style="background:var(--cat-vegetables-mid)"></span><span style="color:var(--cat-vegetables-fg)">Vegetables</span></div>
+  <div class="cat" style="background:var(--cat-meats-bg)"><span class="dot" style="background:var(--cat-meats-mid)"></span><span style="color:var(--cat-meats-fg)">Meats</span></div>
+  <div class="cat" style="background:var(--cat-dairy-bg)"><span class="dot" style="background:var(--cat-dairy-mid)"></span><span style="color:var(--cat-dairy-fg)">Dairy</span></div>
+  <div class="cat" style="background:var(--cat-cheeses-bg)"><span class="dot" style="background:var(--cat-cheeses-mid)"></span><span style="color:var(--cat-cheeses-fg)">Cheeses</span></div>
+  <div class="cat" style="background:var(--cat-baking-bg)"><span class="dot" style="background:var(--cat-baking-mid)"></span><span style="color:var(--cat-baking-fg)">Baking</span></div>
+  <div class="cat" style="background:var(--cat-bread-bg)"><span class="dot" style="background:var(--cat-bread-mid)"></span><span style="color:var(--cat-bread-fg)">Bread</span></div>
+  <div class="cat" style="background:var(--cat-beverages-bg)"><span class="dot" style="background:var(--cat-beverages-mid)"></span><span style="color:var(--cat-beverages-fg)">Beverages</span></div>
+  <div class="cat" style="background:var(--cat-paper-bg)"><span class="dot" style="background:var(--cat-paper-mid)"></span><span style="color:var(--cat-paper-fg)">Paper Goods</span></div>
+  <div class="cat" style="background:var(--cat-freezer-bg)"><span class="dot" style="background:var(--cat-freezer-mid)"></span><span style="color:var(--cat-freezer-fg)">Freezer</span></div>
+  <div class="cat" style="background:var(--cat-misc-bg)"><span class="dot" style="background:var(--cat-misc-mid)"></span><span style="color:var(--cat-misc-fg)">Misc</span></div>
+</div>
+</body></html>

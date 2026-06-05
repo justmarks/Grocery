@@ -1,0 +1,21 @@
+<!-- @dsCard group="Colors" viewport="700x150" name="Paper — warm surfaces" subtitle="Cream surface ramp; never pure white for a page" -->
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8" /><link rel="stylesheet" href="../styles.css" />
+<style>
+  body { margin: 0; background: var(--bg-page); padding: 20px; }
+  .ramp { display: flex; gap: 0; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); }
+  .sw { flex: 1; height: 84px; display: flex; flex-direction: column; justify-content: flex-end; padding: 8px; }
+  .sw span { font-family: var(--font-mono); font-size: 10px; }
+  .name { color: var(--ink-700); }
+  .hex { color: var(--ink-500); }
+</style></head>
+<body>
+<div class="ramp">
+  <div class="sw" style="background:var(--paper-50)"><span class="name">50</span><span class="hex">#fdfaf4</span></div>
+  <div class="sw" style="background:var(--paper-100)"><span class="name">100</span><span class="hex">#fbf6ee</span></div>
+  <div class="sw" style="background:var(--paper-200)"><span class="name">200</span><span class="hex">#f4ecdd</span></div>
+  <div class="sw" style="background:var(--paper-300)"><span class="name">300</span><span class="hex">#eadfc9</span></div>
+  <div class="sw" style="background:var(--paper-400)"><span class="name">400</span><span class="hex">#d9caae</span></div>
+</div>
+</body></html>
