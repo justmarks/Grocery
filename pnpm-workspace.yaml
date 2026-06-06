@@ -1,0 +1,23 @@
+# `functions/` is intentionally excluded — Firebase Cloud Functions tooling
+# assumes npm. The root `postinstall` runs `npm --prefix functions install`
+# so `pnpm install` from the root primes both.
+packages:
+  - "web"
+  - "shared"
+
+# Explicit allow-list for install-time build scripts. pnpm 10+ blocks
+# arbitrary postinstall code by default so a malicious transitive can't
+# silently run on install. esbuild ships native binaries needed by Vite;
+# protobufjs builds its proto loader for the Firebase SDK; @firebase/util
+# ships native bits too. All three are first-class Firebase / Vite deps.
+onlyBuiltDependencies:
+  - "@firebase/util"
+  - esbuild
+  - protobufjs
+
+# Suppress pnpm's auto-injected approval prompts now that the allow-list
+# above explicitly trusts these builds.
+allowBuilds:
+  "@firebase/util": true
+  esbuild: true
+  protobufjs: true

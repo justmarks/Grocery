@@ -4,6 +4,69 @@
 
 Build a shared household grocery list PWA. One household, one list, many members. Must accept imports from RecipeTracker meal plans without lossy translation, feel fast on mobile, work offline, remember what you usually buy, and split cleanly between *planning* (write) and *shopping* (read) modes.
 
+## Design system
+
+A complete design system ships in `design-system/` at the repo root — a handoff bundle from Claude Design containing tokens, components, fonts, brand assets, and a reference PWA. Read `design-system/project/readme.md` first; it covers voice/tone, visual foundations, iconography, and the manifest. The skill entry point is `design-system/project/SKILL.md`.
+
+### What's in it
+
+- **`project/tokens/`** — CSS custom properties for colors (paper/ink ramps, brand hues, semantic aliases), per-aisle category colors, typography (Newsreader/Manrope/JetBrains Mono with a 1.2 scale), spacing (4px grid + 44px tap target), effects (warm ink-tinted shadows, ease curves, durations). Single `styles.css` is the import chain — link that one file and you get everything.
+- **`project/components/`** — 20 React/JSX primitives organized by group: `core/` (Brand, Button, IconButton, Avatar, Icon), `forms/` (Input, Select, Field, Checkbox), `grocery/` (CategoryTag, GroceryItemRow, AisleHeader, ModeToggle, StoreFilter + the `CATEGORIES` constants + helpers), `feedback/` (Toast, EmptyState). Each component has a sibling `.d.ts` (props contract) and `.prompt.md` (usage example + key variants).
+- **`project/assets/`** — the brand monogram SVG and the three genuine variable-font binaries (Newsreader, Manrope, JetBrains Mono).
+- **`project/ui_kits/grocery_app/`** — interactive PWA recreation: sign-in → Plan → Shop. Crib screen structure from this, not the implementation.
+- **`project/guidelines/`** — foundation specimen cards (color, type, spacing, effects).
+
+### Non-negotiables (lifted from the design guide)
+
+- **Never pure white or pure black.** Pages sit on `--paper-100` (`#fbf6ee`); text is `--ink-900` (`#2a1f18`).
+- **Two semantic colors do most of the work.** `--accent` (tomato-500, `#c8553d`) for primary actions/links/active states. `--checked` (olive-500, `#7c8f5b`) for the shopping "done / got it" state — the single most important semantic in shopping mode.
+- **Three font families, no substitutes.** Newsreader serif for the wordmark, page titles, and aisle headers (set tomato + italic for the "Grocery" line of the lockup). Manrope for all UI text and buttons. JetBrains Mono for counts, quantities, store filters, and any tabular number.
+- **44px minimum tap target** on every interactive control. Item rows at 18px (`--text-md`).
+- **Sentence case everywhere.** The *only* uppercase is the tracked eyebrow label (`SHARED WITH 4 MEMBERS`, `FROM RECIPETRACKER`).
+- **No emoji. No third-party icon library.** All icons are 1.5px-stroke outline glyphs from the design system's `Icon.jsx` (Lucide-style, inlined — not the Lucide runtime). Add a path if a new glyph is needed.
+- **Warm ink-tinted shadows**, never neutral gray (`rgba(70, 53, 40, …)`).
+- **Single motion curve**: `cubic-bezier(0.22, 1, 0.36, 1)`, fast durations (120/200/320 ms). No bounce, no scale-on-press, no decorative loops.
+- **No photographic backgrounds, no gradients-as-decoration, no patterns/textures, no glassmorphism.** Warmth comes from the paper color itself.
+
+### Aisle category colors
+
+The 11 categories (10 from RecipeTracker + `freezer`) each own a color family the shopper learns to scan for. The design system's `tokens/categories.css` defines `--cat-<slug>-bg|mid|fg` for each. The mappings are:
+
+| Slug | Family |
+|---|---|
+| `fruits` | berry |
+| `vegetables` | olive |
+| `meats` | tomato |
+| `dairy` | sky |
+| `cheeses` | saffron |
+| `baking-and-dry-goods` | cocoa |
+| `bread-and-crackers` | plum |
+| `beverages` | sage |
+| `paper-goods` | slate |
+| `freezer` | frost *(Grocery-only)* |
+| `misc` | neutral paper |
+
+The design system's `CATEGORIES` array in `components/grocery/categories.js` is in **canonical store-walk order** — fruits → vegetables → meats → dairy → cheeses → baking → bread → beverages → paper → freezer → misc. This is the seeded default value for `households/{id}.categoryOrder` on creation.
+
+### How the design system gets consumed
+
+The bundle is a *reference* — JSX prototypes meant to be ported, not shipped as-is. During Phase 0:
+
+1. **Copy `project/assets/fonts/`** → `web/public/fonts/`.
+2. **Copy `project/assets/brand/grocery-icon.svg`** → `web/public/icons/` and inline a TSX `<Monogram />` from `project/components/core/Brand.jsx`.
+3. **Port `project/tokens/*.css`** → `web/src/styles/tokens/` and re-create the `styles.css` import chain. These are framework-agnostic CSS variables — they live in `:root` and are consumed by both design-system component CSS and Tailwind utilities.
+4. **Port `project/components/`** → `web/src/components/ui/` as TSX (preserve the prop contracts in the `.d.ts` files). Keep the prompt files in the design-system bundle as reference; don't ship them.
+5. **Configure Tailwind v4** to *coexist* with the design system: Tailwind owns layout utilities (flex/grid/gap); the design system owns branded primitives and tokens. Tailwind's theme should reference the CSS variables directly (`color: var(--ink-900)`) so there's one source of truth.
+6. **Manifest** — set `theme_color: "#c8553d"` (tomato-500), `background_color: "#fbf6ee"` (paper-100). These match the design system's first-paint expectations.
+
+### Locked design decisions from the design-system chat
+
+The design-system author iterated with Justin and landed on three signals worth treating as locked:
+
+- **Brand mark is approved.** Tomato grocery-list card monogram with checked top row + olive sprig. Don't redesign.
+- **Plan / Shop are the two pivot verbs.** No "edit mode", no "shopping list", no "buy mode" — just *Plan* (write) and *Shop* (read).
+- **No import button in the Plan UI.** The import flow is **entry-from-deep-link only** — RecipeTracker pushes via `/import?source=mealplan&payload=…`, Grocery never has a "find a meal plan to import" affordance in the Plan view. Settings may show a one-line help row ("Send a meal plan from RecipeTracker → it'll open here") but no item-discovery UI. Captured in Phase 8.
+
 ## Architectural alignment with RecipeTracker
 
 RecipeTracker is a sibling Firebase PWA. To keep the import surface clean and avoid re-solving problems Justin has already solved, this app mirrors its conventions:
@@ -126,7 +189,10 @@ households/{householdId}
   memberIds         [uid, uid, ...]    // includes owner
   members           { uid: { role: "owner"|"editor", joinedAt, displayName } }
   stores            ["Trader Joe's", "Costco", "Target", "QFC"]
-  categoryOrder     ["fruits","vegetables",...,"freezer","misc"]   // display order
+  categoryOrder     // canonical store-walk order from design-system CATEGORIES, seeded on create:
+                    // ["fruits","vegetables","meats","dairy","cheeses",
+                    //  "baking-and-dry-goods","bread-and-crackers","beverages",
+                    //  "paper-goods","freezer","misc"]
   createdAt, updatedAt
 
 households/{householdId}/items/{itemId}
@@ -255,10 +321,12 @@ Each phase ends in something usable on a real device. Don't move on until the cu
 - `pnpm init`, workspace config matching RecipeTracker (`pnpm-workspace.yaml` includes `web` + `shared` but **not** `functions`)
 - Root `package.json` mirrors RecipeTracker scripts (`dev`, `build`, `preview`, `lint`, `typecheck`, `deploy`, `deploy:hosting`, `deploy:functions`, `deploy:rules`, `postinstall: npm --prefix functions install`); pin `engines.node >=20` and `packageManager: pnpm@<version>`
 - Vite + React + TS scaffold in `web/`; bundle chunking config (firebase split per product, react chunk, `chunkSizeWarningLimit: 600`); dev-server COOP header
-- Tailwind, base layout shell, mobile-first
+- Tailwind v4, configured to coexist with the design system (Tailwind for layout utilities; design system for tokens + branded primitives — both reference the same `:root` CSS variables)
+- **Port the design system from `design-system/project/`** into `web/`: fonts → `web/public/fonts/`, brand SVG → `web/public/icons/`, token CSS files → `web/src/styles/tokens/` with a `styles.css` import chain, JSX components → `web/src/components/ui/` as TSX (preserve the `.d.ts` prop contracts; keep the source bundle as reference, don't ship `.prompt.md` files)
+- Base layout shell, mobile-first, page sits on `--paper-100`, text in `--ink-900`
 - Firebase project (separate from RecipeTracker), `web/.env.example` with `VITE_FIREBASE_*` + `VITE_USE_EMULATOR=1` flag, `web/src/lib/firebase.ts` reads emulator flag
 - `firebase.json` with: hosting `**` → `/index.html` rewrite; cache headers (`no-cache` on index.html/sw.js/manifest, `immutable` on hashed assets); `functions[].disallowLegacyRuntimeConfig: true`; predeploy hook `npm --prefix functions run lint && build`; `auth.providers.googleSignIn` block
-- `vite-plugin-pwa` with `registerType: "prompt"`, `navigateFallback: "/index.html"`, `navigateFallbackDenylist: [/^\/__\/auth/, /^\/api\//]`, `cleanupOutdatedCaches: true`, no runtime caching of Firestore/Auth
+- `vite-plugin-pwa` with `registerType: "prompt"`, `navigateFallback: "/index.html"`, `navigateFallbackDenylist: [/^\/__\/auth/, /^\/api\//]`, `cleanupOutdatedCaches: true`, no runtime caching of Firestore/Auth; manifest `theme_color: "#c8553d"` (tomato-500), `background_color: "#fbf6ee"` (paper-100) so the first paint matches the design system before React mounts
 - `shared/` package skeleton, vendor `GROCERY_CATEGORIES` + `GroceryItem`/`GroceryList` with `// SOURCE: RecipeTracker/shared/src/mealPlan.ts` header; vitest configured
 - Deploy "hello world" to Firebase Hosting, confirm PWA install on phone via `pnpm build && pnpm preview` (not dev server)
 
@@ -270,20 +338,23 @@ Each phase ends in something usable on a real device. Don't move on until the cu
 - Document the `<project>.web.app` authorized-domains gotcha in `README.md` setup section
 
 ### Phase 2 — Household setup
-- On first sign-in (or any time `users/{uid}.householdId` is null), prompt: create a new household, or wait for an invite.
-- "Create household" → write `households/{newId}` with default stores + `categoryOrder`, set `users/{uid}.householdId`
-- Settings page: rename household, edit stores list, reorder categories
+- On first sign-in (or any time `users/{uid}.householdId` is null), prompt: create a new household, or wait for an invite. Use the design system's `EmptyState` component for the "no household yet" empty state and `Button` (primary tomato) for "Create household."
+- "Create household" → write `households/{newId}` with default stores + `categoryOrder` seeded from the design system's canonical store-walk order (`design-system/project/components/grocery/categories.js` → `CATEGORIES.map(c => c.slug)`), set `users/{uid}.householdId`
+- Settings page: rename household, edit stores list, drag-to-reorder categories
 - `useHousehold()` hook reads `users/{uid}.householdId`, subscribes to the household doc + items subcollection
 
 ### Phase 3 — Items CRUD
-- Add item: `text`, `quantity` (number input, default 1), `category`, `stores` (multi-select)
-- Edit, delete, realtime listener on items subcollection
-- Mobile-friendly forms, empty state
+- Add item: `text` (design system `Input` + `Field`), `quantity` (number input, default 1), `category` (`Select` or `CategoryTag` picker), `stores` (multi-select pills)
+- Edit, delete via the `GroceryItemRow.trailing` slot with `IconButton`s (pencil / trash)
+- Realtime listener on items subcollection
+- Empty state: use `EmptyState` with the copy "Your list is empty — Add items as you think of them, or import a meal plan from RecipeTracker." (the design guide's reference copy)
+- Toast confirmations via design system `Toast`: "Added Lemons", "Removed Lemons"
 
 ### Phase 4 — Grouping & view modes
-- **Default order: by section.** Items grouped under category headers in the order defined by `households/{id}.categoryOrder`; within a section, items sort by `addedAt ASC`. This is the default in both write and shopping modes.
-- Alternate view: group by **Store** (toggle). Items with multiple stores appear in each relevant store group, with visual indicator. Within a store group, sub-order is still by section.
-- Section headers collapse/expand, empty sections hidden
+- **Default order: by section.** Items grouped under design system `AisleHeader` components in the order defined by `households/{id}.categoryOrder`; within a section, items sort by `addedAt ASC`. This is the default in both write and shopping modes.
+- Top-of-list pivot: `ModeToggle` (Plan / Shop) — locked labels from the design system.
+- Alternate view: group by **Store** (toggle). Items with multiple stores appear in each relevant store group, with visual indicator (the design system's `GroceryItemRow.showCategory` prop surfaces the category chip when an item lives outside an aisle header). Within a store group, sub-order is still by section.
+- Section headers collapse/expand (use the warm `--border-faint` hairline divider, not boxed grids — non-negotiable from the design guide), empty sections hidden
 - Drag-to-reorder categories within the household (writes to `households/{id}.categoryOrder`) — the same array is the rank source for the items view
 
 ### Phase 5 — Catalog + autocomplete
@@ -293,11 +364,12 @@ Each phase ends in something usable on a real device. Don't move on until the cu
 - Bump `timesUsed`/`lastUsedAt`
 
 ### Phase 6 — Shopping (read) mode
-- Top-of-screen mode toggle, visually distinct
+- Top-of-screen `ModeToggle` (Plan / Shop) — the active "Shop" option tints **olive** to signal the "at the store" context (this is the design system's intent; don't replace it with tomato)
 - **Default order: by section** (same as write mode) — when you walk into the store you want to see Produce first, then your way through to the freezer. The section-by-section walk is the whole point of categorizing items.
-- Tap-to-check: item strikethrough + floats to bottom of its section (still inside the section header — doesn't migrate to a global "checked" bucket)
-- **Sticky store filter** — single chip at the top of shopping mode ("All stores" / "Trader Joe's" / "Costco" / …). Selecting a store filters the visible items to those that include it in their `stores` array; section ordering still organizes what remains. Selection persists in local storage so reopening the app at the store keeps the filter. Same mode, not a separate sub-mode.
-- "End trip" → bulk clear checked, or keep for next trip
+- Tap-to-check uses the design system's **big olive `Checkbox`** (the largest tap target in the app, well above the 44px floor). Checked rows strike through in olive and tint via `--checked-bg`. Items float to the bottom of their section (still inside the section header — doesn't migrate to a global "checked" bucket).
+- **Sticky store filter** — design system `StoreFilter` chip row at the top of shopping mode ("All stores" / "Trader Joe's" / "Costco" / …). Selecting a store filters the visible items to those that include it in their `stores` array; section ordering still organizes what remains. Selection persists in local storage so reopening the app at the store keeps the filter. Same mode, not a separate sub-mode.
+- Live progress chip near the toggle: "2/16 in the cart" (JetBrains Mono numerals, never a percentage — design guide rule).
+- "End trip" → bulk clear checked, or keep for next trip. Toast on completion: "Trip ended — checked items cleared" (matches the design guide's example copy).
 
 ### Phase 7 — Household sharing (invites)
 - `functions/src/inviteToHousehold.ts` — owner/member creates `invites/{id}` for a given email
@@ -308,18 +380,23 @@ Each phase ends in something usable on a real device. Don't move on until the cu
 - Verify rules enforce role boundaries
 
 ### Phase 8 — Recipe import
+- **Entry path is the deep link only** (design decision from the design-system chat). No "Import" affordance in the Plan view, no item-discovery UI in Settings. RecipeTracker pushes; Grocery receives.
 - Route `/import` accepts `?source=mealplan&payload=<encoded>`
 - Decode, validate against vendored `GroceryListSchema`, reject on `schemaVersion` mismatch
 - If user has no household, route through household-create first, then resume import
-- Preview screen: items pre-sorted into the household's section order (so review mirrors how they'll appear when shopping), per-item store dropdown, bulk "apply <store> to all" action
+- Preview screen as a bottom sheet (matches design system's import-sheet pattern): `FROM RECIPETRACKER` tracked-eyebrow label at top, meal plan title in Newsreader, items pre-sorted into the household's section order with `CategoryTag` chips and `×N` count badges, per-item store dropdown (`Select`), bulk "apply <store> to all" action
 - Catalog lookup prefills stores for known items
+- Dual-action sheet footer (`Button` primary "Add to list" / ghost "Not now")
 - Batched commit to `households/{id}/items` with `quantity: 1`, `source: "mealplan"`, `sourceRef: { mealPlanId }`
+- Toast on success: "Added 5 items from Friday Taco Night" (design guide reference copy)
+- Settings may include a one-line help row ("Send a meal plan from RecipeTracker — it'll open here") — informational only, no button
 - *(Companion change in RecipeTracker — defer)*: add "Send to Grocery" button in meal-plan view that builds the URL and `window.open`s it
 
 ### Phase 9 — PWA polish & ship
-- Icons (all sizes), splash, theme color, screenshots, shortcuts
-- Service worker: precache shell, runtime cache fonts, bypass Firestore/Auth
-- Install prompt UX, update toast (mirror RecipeTracker's `useRegisterSW({ onNeedRefresh })`)
+- Icons (192/256/384/512 + maskable) generated from the design system's brand monogram (`design-system/project/assets/brand/grocery-icon.svg`)
+- Splash + theme: `theme_color: "#c8553d"` (tomato-500), `background_color: "#fbf6ee"` (paper-100), Apple `<meta>` tags for status bar
+- Service worker: precache shell + fonts, runtime cache fonts (CacheFirst), bypass Firestore/Auth
+- Install prompt UX and update toast (mirror RecipeTracker's `useRegisterSW({ onNeedRefresh })` — use the design system `Toast` component)
 - Lighthouse PWA audit → 100
 - Firestore composite indexes for catalog queries
 - Production deploy

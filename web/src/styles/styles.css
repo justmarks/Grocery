@@ -1,0 +1,43 @@
+/* =============================================================
+   Grocery — Global CSS entry point.
+   Source-of-truth tokens + base styles come from the design system
+   bundle in design-system/project/, ported verbatim into ./tokens/.
+   Tailwind v4 layers on top for layout utilities — both reference
+   the same :root CSS variables so there's one source of truth.
+   ============================================================= */
+
+@import "tailwindcss";
+
+@import "./tokens/fonts.css";
+@import "./tokens/colors.css";
+@import "./tokens/categories.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";
+@import "./tokens/effects.css";
+@import "./tokens/base.css";
+@import "./tokens/components.css";
+
+/* Alias the design-system tokens into Tailwind's theme so utilities
+   like `bg-paper-100` or `text-ink-900` resolve. The CSS variables
+   remain the source of truth — these are just hooks. */
+@theme {
+  --color-paper-50: var(--paper-50);
+  --color-paper-100: var(--paper-100);
+  --color-paper-200: var(--paper-200);
+  --color-paper-300: var(--paper-300);
+  --color-paper-400: var(--paper-400);
+  --color-ink-100: var(--ink-100);
+  --color-ink-300: var(--ink-300);
+  --color-ink-500: var(--ink-500);
+  --color-ink-700: var(--ink-700);
+  --color-ink-900: var(--ink-900);
+  --color-tomato-500: var(--tomato-500);
+  --color-tomato-600: var(--tomato-600);
+  --color-tomato-700: var(--tomato-700);
+  --color-olive-500: var(--olive-500);
+  --color-olive-700: var(--olive-700);
+
+  --font-display: "Newsreader", "Source Serif Pro", Georgia, serif;
+  --font-sans: "Manrope", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}

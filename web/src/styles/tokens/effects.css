@@ -1,0 +1,34 @@
+/* =============================================================
+   Grocery — Effects: Radii, Shadows, Motion
+   Shadows are warm-tinted (rgba of ink-700), never neutral gray —
+   they read as soft paper lift, not material elevation. Motion is
+   restrained: a single ease-out curve, fast durations. The only
+   "playful" motion in the system is the confirmation toast.
+   ============================================================= */
+
+:root {
+  /* ---------- RADII ---------- */
+  --radius-sm: 4px;   /* chips, tags */
+  --radius-md: 8px;   /* inputs, buttons */
+  --radius-lg: 14px;  /* cards */
+  --radius-xl: 20px;  /* sign-in / launch card */
+  --radius-pill: 999px; /* avatars, store-filter chips, counters */
+
+  /* ---------- SHADOWS (warm ink-tinted) ---------- */
+  --shadow-xs: 0 1px 2px rgba(70, 53, 40, 0.06);
+  --shadow-sm: 0 2px 6px rgba(70, 53, 40, 0.08);
+  --shadow-md: 0 4px 14px rgba(70, 53, 40, 0.1),
+    0 1px 2px rgba(70, 53, 40, 0.05);
+  --shadow-lg: 0 12px 30px rgba(70, 53, 40, 0.14),
+    0 2px 6px rgba(70, 53, 40, 0.06);
+
+  /* Focus ring — tomato halo, used on every focusable control. */
+  --shadow-focus: 0 0 0 3px rgba(200, 85, 61, 0.25);
+
+  /* ---------- MOTION ---------- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1); /* @kind other */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* @kind other */
+  --dur-fast: 120ms; /* @kind other */
+  --dur-base: 200ms; /* @kind other */
+  --dur-slow: 320ms; /* @kind other */
+}

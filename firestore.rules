@@ -1,0 +1,226 @@
+rules_version = '2';
+
+// Phase 2 — users + households + (items, catalog) subcollections.
+// Phase 7 will add invites/{inviteId} + tighten the householdId
+// rewrite path on users/{uid} (Phase 7 handles confirm-and-move via
+// a callable). Invites stay default-deny until then.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ============================================================
+    // Helpers
+    // ============================================================
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function householdData(householdId) {
+      return get(/databases/$(database)/documents/households/$(householdId)).data;
+    }
+
+    function isHouseholdMember(householdId) {
+      return isSignedIn()
+        && request.auth.uid in householdData(householdId).memberIds;
+    }
+
+    // Category enum — must stay aligned with @grocery/shared
+    // GROCERY_CATEGORIES + the design system CATEGORIES array.
+    function isValidCategory(c) {
+      return c in [
+        'fruits',
+        'vegetables',
+        'meats',
+        'dairy',
+        'cheeses',
+        'baking-and-dry-goods',
+        'bread-and-crackers',
+        'beverages',
+        'paper-goods',
+        'freezer',
+        'misc'
+      ];
+    }
+
+    function isValidUserDoc(data) {
+      return data.displayName is string
+        && data.displayName.size() > 0
+        && data.displayName.size() <= 200
+        && data.email is string
+        && data.email.size() > 0
+        && data.email.size() <= 320
+        && (!('photoURL' in data) || data.photoURL == null || data.photoURL is string)
+        && (!('householdId' in data) || data.householdId == null || data.householdId is string)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidHousehold(data) {
+      return data.name is string
+        && data.name.size() > 0
+        && data.name.size() <= 120
+        && data.ownerId is string
+        && data.ownerId.size() > 0
+        && data.memberIds is list
+        && data.memberIds.size() >= 1
+        && data.members is map
+        && data.stores is list
+        && data.stores.size() >= 1
+        && data.categoryOrder is list
+        && data.categoryOrder.size() >= 1
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    function isValidItem(data) {
+      return data.text is string
+        && data.text.size() > 0
+        && data.text.size() <= 280
+        && data.quantity is int
+        && data.quantity >= 1
+        && data.quantity <= 999
+        && isValidCategory(data.category)
+        && data.stores is list
+        && data.checked is bool
+        && (data.checkedBy == null || data.checkedBy is string)
+        && (data.checkedAt == null || data.checkedAt is timestamp)
+        && data.addedBy is string
+        && data.addedAt is timestamp
+        && data.source in ['manual', 'catalog', 'mealplan']
+        && (!('sourceRef' in data) || data.sourceRef == null || data.sourceRef is map);
+    }
+
+    function isValidCatalogEntry(data) {
+      return data.text is string
+        && data.text.size() > 0
+        && data.text.size() <= 280
+        && data.textLower is string
+        && data.textLower.size() > 0
+        && data.searchTokens is list
+        && isValidCategory(data.defaultCategory)
+        && data.defaultStores is list
+        && data.defaultQuantity is int
+        && data.defaultQuantity >= 1
+        && data.defaultQuantity <= 999
+        && data.timesUsed is int
+        && data.timesUsed >= 0
+        && data.lastUsedAt is timestamp;
+    }
+
+    // ============================================================
+    // Users
+    // ============================================================
+    //
+    // users/{uid} stores per-user state — display info plus the
+    // pointer to the current household. The client may rewrite
+    // householdId from null → string (joining their first household
+    // via the Phase 2 create flow). Switching households (string →
+    // string') is a Phase 7 server-side flow and is blocked here.
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && request.auth.uid == userId;
+
+      allow create: if isSignedIn()
+        && request.auth.uid == userId
+        && isValidUserDoc(request.resource.data)
+        && (!('householdId' in request.resource.data) || request.resource.data.householdId == null);
+
+      allow update: if isSignedIn()
+        && request.auth.uid == userId
+        && isValidUserDoc(request.resource.data)
+        && (
+          // Display-field refresh / save — householdId unchanged.
+          request.resource.data.householdId == resource.data.householdId
+          // First-time join — null → non-null. Phase 2 create flow.
+          || (resource.data.householdId == null && request.resource.data.householdId is string)
+        );
+
+      // No client-side deletes. Account removal is a Phase 9 concern
+      // (or a console-only operation).
+      allow delete: if false;
+    }
+
+    // ============================================================
+    // Households
+    // ============================================================
+
+    match /households/{householdId} {
+      allow read: if isSignedIn()
+        && request.auth.uid in resource.data.memberIds;
+
+      allow create: if isSignedIn()
+        && request.resource.data.ownerId == request.auth.uid
+        && request.auth.uid in request.resource.data.memberIds
+        && isValidHousehold(request.resource.data);
+
+      // Updates: any member can rewrite metadata (name, stores,
+      // categoryOrder). Owner-only fields (ownerId, memberIds) must
+      // be unchanged unless the writer is the owner.
+      allow update: if isSignedIn()
+        && request.auth.uid in resource.data.memberIds
+        && isValidHousehold(request.resource.data)
+        && (
+          request.auth.uid == resource.data.ownerId
+          || (
+            request.resource.data.ownerId == resource.data.ownerId
+            && request.resource.data.memberIds == resource.data.memberIds
+            && request.resource.data.members == resource.data.members
+          )
+        );
+
+      // Only the owner can delete. Phase 7 covers the
+      // last-member-leaves edge case where a household winds down.
+      allow delete: if isSignedIn()
+        && request.auth.uid == resource.data.ownerId;
+
+      // --------------------------------------------------------
+      // Items subcollection — Phase 3 starts writing here.
+      // --------------------------------------------------------
+      match /items/{itemId} {
+        allow read: if isHouseholdMember(householdId);
+        allow create: if isHouseholdMember(householdId)
+          && isValidItem(request.resource.data)
+          && request.resource.data.addedBy == request.auth.uid;
+        allow update: if isHouseholdMember(householdId)
+          && isValidItem(request.resource.data);
+        allow delete: if isHouseholdMember(householdId);
+      }
+
+      // --------------------------------------------------------
+      // Catalog subcollection — Phase 5 starts writing here.
+      // --------------------------------------------------------
+      match /catalog/{catalogId} {
+        allow read: if isHouseholdMember(householdId);
+        allow create, update: if isHouseholdMember(householdId)
+          && isValidCatalogEntry(request.resource.data);
+        allow delete: if isHouseholdMember(householdId);
+      }
+    }
+
+    // ============================================================
+    // Invites
+    // ============================================================
+    //
+    // All writes go through Cloud Functions (admin SDK bypasses
+    // these rules). Clients only need read access so the invitee
+    // can render the accept page and so household members can see
+    // their pending invites in Settings.
+
+    match /invites/{inviteId} {
+      allow read: if isSignedIn() && (
+        // The invitee can read by email match.
+        resource.data.invitedEmail == request.auth.token.email
+        // The inviter can read their own invites.
+        || resource.data.invitedBy == request.auth.uid
+        // Any current member of the target household can read.
+        || (
+          resource.data.householdId is string
+          && exists(/databases/$(database)/documents/households/$(resource.data.householdId))
+          && request.auth.uid in householdData(resource.data.householdId).memberIds
+        )
+      );
+      allow write: if false;
+    }
+  }
+}

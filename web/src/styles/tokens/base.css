@@ -1,0 +1,130 @@
+/* =============================================================
+   Grocery — Base Element Styles
+   Cream paper page, Manrope body, warm ink text. Serif headers.
+   Mirrors the Recipe Book base layer so shared chrome (imported
+   meal plans, the account hub) is pixel-identical across siblings.
+   ============================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--fg-default);
+  background: var(--bg-page);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, .h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: 500;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-default);
+  margin: 0;
+}
+
+h2, .h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: 500;
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-default);
+  margin: 0;
+}
+
+h3, .h3 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 500;
+  line-height: var(--leading-snug);
+  color: var(--fg-default);
+  margin: 0;
+}
+
+h4, .h4 {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  color: var(--fg-default);
+  margin: 0;
+}
+
+/* Eyebrow — the only place uppercase is allowed. */
+.eyebrow {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-caps);
+  color: var(--fg-subtle);
+}
+
+/* Aisle / section header — serif, used above each grocery section. */
+.aisle-head {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: 500;
+  letter-spacing: var(--tracking-tight);
+  color: var(--fg-default);
+}
+
+/* Item line — shopping-mode body text, comfortably tappable. */
+.item-text {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  line-height: var(--leading-snug);
+  color: var(--fg-default);
+}
+
+/* Count / quantity — monospace tabular numerals. */
+.count {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-feature-settings: "tnum";
+  color: var(--fg-muted);
+}
+
+p, .body {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--fg-muted);
+}
+
+.caption, small {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--fg-subtle);
+}
+
+code, kbd, .mono {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+}
+
+a {
+  color: var(--fg-link);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+a:hover {
+  color: var(--fg-link-hover);
+}
+
+::selection {
+  background: var(--tomato-100);
+  color: var(--ink-900);
+}

@@ -1,0 +1,132 @@
+/* =============================================================
+   Grocery — Color Tokens
+   Inherited verbatim from the Marks Family Recipe Book design
+   system so the two sibling apps read as one family and meal-plan
+   imports land in a visually identical world. Warm cream "paper"
+   surfaces, warm "ink" text, and four brand hues (tomato / olive /
+   saffron / plum) plus five extended tag families.
+
+   Identity note: Grocery keeps TOMATO as the primary accent (the
+   family signature) and leans on OLIVE for the "checked / done"
+   shopping state — green reads as "got it" at the shelf. No new
+   brand hue is introduced; only one cool tag family (`frost`) is
+   added so the Grocery-only `freezer` aisle gets its own chip.
+   ============================================================= */
+
+:root {
+  /* ---------- COLOR PRIMITIVES ---------- */
+
+  /* Paper — warm cream surfaces. Never pure white for a page bg. */
+  --paper-50: #fdfaf4;
+  --paper-100: #fbf6ee;
+  --paper-200: #f4ecdd;
+  --paper-300: #eadfc9;
+  --paper-400: #d9caae;
+
+  /* Ink — warm near-black text. Never pure black, never cool gray. */
+  --ink-900: #2a1f18;
+  --ink-700: #463528;
+  --ink-500: #7b6655;
+  --ink-300: #b0a08d;
+  --ink-100: #e5dccc;
+
+  /* Tomato — primary brand accent (buttons, links, active nav). */
+  --tomato-50: #fbede8;
+  --tomato-100: #f5d2c7;
+  --tomato-300: #e89683;
+  --tomato-500: #c8553d;
+  --tomato-600: #b0432d;
+  --tomato-700: #903525;
+  --tomato-900: #5e2218;
+
+  /* Olive — the "checked / done" green for shopping mode. */
+  --olive-50: #f2f3ea;
+  --olive-100: #e1e5d0;
+  --olive-300: #b6c094;
+  --olive-500: #7c8f5b;
+  --olive-700: #5a6a3f;
+  --olive-900: #38421f;
+
+  /* Saffron — warm yellow accent (warnings, highlights). */
+  --saffron-100: #fbeed0;
+  --saffron-300: #ecca7a;
+  --saffron-500: #d9a441;
+  --saffron-700: #a87a22;
+
+  /* Plum — deep berry accent. */
+  --plum-100: #ebdde3;
+  --plum-300: #c391a4;
+  --plum-500: #804158;
+  --plum-700: #5a2c3d;
+
+  /* ---------- EXTENDED TAG FAMILIES ----------
+     Same 100 / 300 / 700 shape as the brand hues (light chip bg /
+     mid swatch / readable text). Used by the per-aisle category
+     chips so every grocery section reads as a distinct color. */
+  --sage-100: #dce5dd;
+  --sage-300: #9eb6a3;
+  --sage-700: #46604c;
+
+  --berry-100: #f0d4dd;
+  --berry-300: #d291a5;
+  --berry-700: #8b3a55;
+
+  --cocoa-100: #e8d6c7;
+  --cocoa-300: #c19878;
+  --cocoa-700: #6e4527;
+
+  --sky-100: #d8e2eb;
+  --sky-300: #93b0c8;
+  --sky-700: #3e5e7b;
+
+  --slate-100: #dadee2;
+  --slate-300: #9aa4af;
+  --slate-700: #4a5563;
+
+  /* Frost — Grocery-only cool family for the `freezer` aisle. The
+     one addition this app makes to the inherited palette, mirroring
+     how the data model adds `freezer` to GROCERY_CATEGORIES. */
+  --frost-100: #d3e6e6;
+  --frost-300: #8cc2c2;
+  --frost-700: #2f6e6e;
+
+  /* ---------- SEMANTIC STATE COLORS ---------- */
+  --success-bg: var(--olive-100);
+  --success-fg: var(--olive-700);
+  --warning-bg: var(--saffron-100);
+  --warning-fg: var(--saffron-700);
+  --danger-bg: var(--tomato-50);
+  --danger-fg: var(--tomato-700);
+  --info-bg: var(--sky-100);
+  --info-fg: var(--sky-700);
+
+  /* ---------- SEMANTIC SURFACE / TEXT / BORDER ---------- */
+  --bg-page: var(--paper-100);
+  --bg-elevated: var(--paper-50);
+  --bg-sunken: var(--paper-200);
+  --bg-card: #ffffff;
+  --bg-hover: var(--paper-200);
+
+  --fg-default: var(--ink-900);
+  --fg-muted: var(--ink-700);
+  --fg-subtle: var(--ink-500);
+  --fg-faint: var(--ink-300);
+  --fg-on-primary: #ffffff;
+  --fg-link: var(--tomato-600);
+  --fg-link-hover: var(--tomato-700);
+
+  --border-default: var(--paper-300);
+  --border-strong: var(--paper-400);
+  --border-faint: var(--ink-100);
+  --border-focus: var(--tomato-500);
+
+  --accent: var(--tomato-500);
+  --accent-hover: var(--tomato-600);
+  --accent-press: var(--tomato-700);
+
+  /* Shopping-mode "done" semantic — used by the checkoff checkbox,
+     strikethrough text, and the checked-row tint. */
+  --checked: var(--olive-500);
+  --checked-strong: var(--olive-700);
+  --checked-bg: var(--olive-50);
+}
