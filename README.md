@@ -89,11 +89,6 @@ Warm editorial — think a well-set cookbook page, not a SaaS dashboard. Cream p
   - Drag-to-reorder categories in Settings — currently up/down chevrons. Functional + accessible; touch dnd would need @dnd-kit or hand-rolled touch handlers.
   - RecipeTracker side — adding a "Send to Grocery" button that constructs the /import?source=mealplan&payload=… URL and window.opens it. One-file change in RecipeTracker, deferred to a session in that repo.
   - Lighthouse audit — run against the live URL once deployed and address any specific findings.
-- Icons instead of text for stores
-  - https://yt3.googleusercontent.com/ytc/AIdro_ntUsDzBbRsrRfsKby0Vj2Gap0fqQownWKn5gwPHBckgw=s900-c-k-c0x00ffffff-no-rj
-  - https://dribbble.com/shots/6868902-Costco-App-Icon-Concept
-  - https://corporate.target.com/getmedia/890f3192-ce35-496a-a3cf-15fc0a8105d0/Target_Bullseye-Logo_Red.jpg?width=620
-  - https://play-lh.googleusercontent.com/NjbklWh9hl5xClU-IagcOXtMlajt8V_bPN4m4LbNPbUGetFSIPFhYfhUi6arA_Tl93F2=w240-h480-rw
 
 ## Related
 
