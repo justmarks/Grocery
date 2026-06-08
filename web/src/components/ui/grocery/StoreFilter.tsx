@@ -1,11 +1,13 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { Icon } from "../core/Icon";
-import { Avatar } from "../core/Avatar";
+import { StoreLogo } from "./StoreLogo";
 
 export interface StoreFilterProps
   extends Omit<HTMLAttributes<HTMLDivElement>, "onChange"> {
   /** Household store names. */
   stores: string[];
+  /** Optional per-store logo data URLs, keyed by store name. */
+  logos?: Record<string, string>;
   /** Active key — "all" or one of `stores`. Default "all". */
   value?: string;
   /** Called with the newly-selected key. */
@@ -31,6 +33,7 @@ const DISC = 40; // px — + 2px ring padding clears the 44px tap floor.
  */
 export function StoreFilter({
   stores = [],
+  logos,
   value = "all",
   onChange,
   className = "",
@@ -45,7 +48,12 @@ export function StoreFilter({
         display: "flex",
         gap: "var(--space-2)",
         overflowX: "auto",
-        paddingBlock: 2,
+        // Pad on all sides so the active disc's 2px tomato ring (a
+        // box-shadow that sits just outside the disc box) isn't
+        // clipped by the scroll container — `overflow-x: auto`
+        // forces `overflow-y: auto`, which would otherwise shave the
+        // top of the selected ring.
+        padding: "var(--space-1)",
       }}
       {...rest}
     >
@@ -78,7 +86,7 @@ export function StoreFilter({
           active={value === s}
           onClick={() => onChange && onChange(s)}
         >
-          <Avatar name={s} size={DISC} />
+          <StoreLogo name={s} logo={logos?.[s]} size={DISC} />
         </StoreDisc>
       ))}
     </div>

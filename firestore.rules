@@ -69,6 +69,9 @@ service cloud.firestore {
         && data.stores.size() >= 1
         && data.categoryOrder is list
         && data.categoryOrder.size() >= 1
+        // Optional per-store logo map (name → image data URL). When
+        // present must be a map; back-compat tolerates its absence.
+        && (!('storeLogos' in data) || data.storeLogos is map)
         && data.createdAt is timestamp
         && data.updatedAt is timestamp;
     }

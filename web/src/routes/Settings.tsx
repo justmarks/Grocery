@@ -18,6 +18,7 @@ import {
   Field,
   IconButton,
   Input,
+  StoreLogo,
   Toast,
 } from "../components/ui";
 import { categoryLabel } from "../components/ui/grocery/categories";
@@ -25,11 +26,22 @@ import { MembersSection } from "../components/MembersSection";
 import { useAuth } from "../lib/useAuth";
 import { useUserDoc } from "../lib/userDoc";
 import { updateHouseholdMetadata, useHousehold } from "../lib/household";
+import { fileToStoreLogo } from "../lib/imageResize";
 
 function arraysEqual<T>(a: readonly T[], b: readonly T[]): boolean {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return false;
   return true;
+}
+
+function recordsEqual(
+  a: Record<string, string>,
+  b: Record<string, string>,
+): boolean {
+  const ak = Object.keys(a);
+  const bk = Object.keys(b);
+  if (ak.length !== bk.length) return false;
+  return ak.every((k) => a[k] === b[k]);
 }
 
 export function Settings() {
@@ -44,10 +56,12 @@ export function Settings() {
   // changes (so a co-member's save flows in without conflict).
   const [name, setName] = useState("");
   const [stores, setStores] = useState<string[]>([]);
+  const [storeLogos, setStoreLogos] = useState<Record<string, string>>({});
   const [categoryOrder, setCategoryOrder] = useState<GroceryCategory[]>([]);
   const [newStore, setNewStore] = useState("");
 
   const [busy, setBusy] = useState(false);
+  const [logoBusyStore, setLogoBusyStore] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState(false);
 
@@ -55,6 +69,7 @@ export function Settings() {
     if (!household) return;
     setName(household.name);
     setStores(household.stores);
+    setStoreLogos(household.storeLogos ?? {});
     setCategoryOrder(household.categoryOrder);
   }, [household?.id, household?.updatedAt, household]);
 
@@ -64,8 +79,9 @@ export function Settings() {
       name.trim() !== household.name
       || !arraysEqual(stores, household.stores)
       || !arraysEqual(categoryOrder, household.categoryOrder)
+      || !recordsEqual(storeLogos, household.storeLogos ?? {})
     );
-  }, [name, stores, categoryOrder, household]);
+  }, [name, stores, categoryOrder, storeLogos, household]);
 
   // No household → bounce to setup. But ONLY once the user doc has
   // actually loaded — Settings mounts a fresh useUserDoc, so userDoc
@@ -92,7 +108,43 @@ export function Settings() {
   }
 
   function removeStore(idx: number) {
+    const name = stores[idx];
     setStores((prev) => prev.filter((_, i) => i !== idx));
+    // Drop the removed store's logo too, so the saved map stays in
+    // sync with the stores list.
+    setStoreLogos((prev) => {
+      if (!(name in prev)) return prev;
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
+  }
+
+  async function handleLogoPick(store: string, file: File | undefined) {
+    if (!file) return;
+    setLogoBusyStore(store);
+    setError(null);
+    try {
+      const { dataUrl } = await fileToStoreLogo(file);
+      setStoreLogos((prev) => ({ ...prev, [store]: dataUrl }));
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error("[settings] logo:", err);
+      setError(
+        err instanceof Error ? err.message : "Couldn't process that image.",
+      );
+    } finally {
+      setLogoBusyStore(null);
+    }
+  }
+
+  function removeLogo(store: string) {
+    setStoreLogos((prev) => {
+      if (!(store in prev)) return prev;
+      const next = { ...prev };
+      delete next[store];
+      return next;
+    });
   }
 
   function addStore() {
@@ -124,6 +176,7 @@ export function Settings() {
         name: name.trim(),
         stores,
         categoryOrder,
+        storeLogos,
       });
       setToast(true);
       window.setTimeout(() => setToast(false), 2500);
@@ -230,7 +283,8 @@ export function Settings() {
                 }}
               >
                 The stores you shop at. Each item can be available at one or
-                more of these.
+                more of these. Tap a store's logo to upload one — it shows on
+                the shop-mode filter.
               </p>
               <ul
                 style={{
@@ -248,16 +302,69 @@ export function Settings() {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "var(--space-2)",
+                      gap: "var(--space-3)",
                       background: "var(--bg-card)",
                       border: "1px solid var(--border-faint)",
                       borderRadius: "var(--radius-md)",
                       padding: "var(--space-2) var(--space-3)",
                     }}
                   >
-                    <span style={{ flex: 1, fontFamily: "var(--font-mono)", fontSize: "var(--text-sm)" }}>
-                      {s}
-                    </span>
+                    <label
+                      title={`Upload a logo for ${s}`}
+                      style={{
+                        flex: "none",
+                        cursor: busy || logoBusyStore === s ? "default" : "pointer",
+                        borderRadius: "var(--radius-pill)",
+                        display: "inline-flex",
+                        opacity: logoBusyStore === s ? 0.5 : 1,
+                      }}
+                    >
+                      <StoreLogo name={s} logo={storeLogos[s]} size={40} />
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                        style={{ display: "none" }}
+                        disabled={busy || logoBusyStore === s}
+                        onChange={(e) => {
+                          handleLogoPick(s, e.target.files?.[0]);
+                          // reset so re-picking the same file refires onChange
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontWeight: 600,
+                          color: "var(--ink-900)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {s}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "var(--text-xs)",
+                          color: "var(--ink-500)",
+                        }}
+                      >
+                        {logoBusyStore === s
+                          ? "Processing…"
+                          : storeLogos[s]
+                            ? "Tap logo to change"
+                            : "Tap logo to add"}
+                      </div>
+                    </div>
+                    {storeLogos[s] && (
+                      <IconButton
+                        icon="x"
+                        aria-label={`Remove logo for ${s}`}
+                        disabled={busy}
+                        onClick={() => removeLogo(s)}
+                      />
+                    )}
                     <IconButton
                       icon="trash"
                       variant="danger"
@@ -392,6 +499,7 @@ export function Settings() {
                   if (!household) return;
                   setName(household.name);
                   setStores(household.stores);
+                  setStoreLogos(household.storeLogos ?? {});
                   setCategoryOrder(household.categoryOrder);
                   setError(null);
                 }}

@@ -76,11 +76,14 @@ export async function createHousehold(
 }
 
 /**
- * Update mutable household metadata — name, stores, categoryOrder.
- * Any member may call (owner-only invariants are enforced by rules).
+ * Update mutable household metadata — name, stores, categoryOrder,
+ * storeLogos. Any member may call (owner-only invariants are enforced
+ * by rules). Passing `storeLogos` replaces the whole map, so callers
+ * send the complete map each save (dropping a store also drops its
+ * logo entry).
  */
 export type HouseholdMutation = Partial<
-  Pick<Household, "name" | "stores" | "categoryOrder">
+  Pick<Household, "name" | "stores" | "categoryOrder" | "storeLogos">
 >;
 
 export async function updateHouseholdMetadata(

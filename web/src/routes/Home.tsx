@@ -395,6 +395,7 @@ export function Home() {
           >
             <StoreFilter
               stores={stores}
+              logos={household?.storeLogos}
               value={storeFilter}
               onChange={setStoreFilter}
             />

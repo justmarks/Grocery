@@ -43,6 +43,9 @@ export type { Mode, ModeToggleProps } from "./grocery/ModeToggle";
 export { StoreFilter } from "./grocery/StoreFilter";
 export type { StoreFilterProps } from "./grocery/StoreFilter";
 
+export { StoreLogo } from "./grocery/StoreLogo";
+export type { StoreLogoProps } from "./grocery/StoreLogo";
+
 export { EmptyState } from "./feedback/EmptyState";
 export type { EmptyStateProps } from "./feedback/EmptyState";
 

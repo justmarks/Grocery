@@ -48,6 +48,16 @@ export const HouseholdSchema = z.object({
   members: z.record(z.string(), MemberSchema),
   stores: z.array(z.string().min(1)).min(1),
   categoryOrder: z.array(GroceryCategorySchema),
+  /**
+   * Per-store logos, keyed by store name. Each value is a small
+   * client-resized image data URL (~96px WebP/PNG, a few KB) — stored
+   * inline rather than in Cloud Storage so it works offline and adds
+   * no bucket dependency. Optional + back-compat: stores without an
+   * entry fall back to a monogram disc. Keyed by name, so removing a
+   * store should drop its entry; renaming isn't supported (stores are
+   * add/remove only).
+   */
+  storeLogos: z.record(z.string(), z.string()).optional(),
   createdAt: z.unknown(),
   updatedAt: z.unknown(),
 });
