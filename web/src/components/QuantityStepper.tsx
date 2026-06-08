@@ -32,7 +32,7 @@ export function QuantityStepper({
         border: "1px solid var(--paper-400)",
         borderRadius: "var(--radius-md)",
         padding: "var(--space-1)",
-        background: "#fff",
+        background: "var(--bg-card)",
       }}
     >
       <button
@@ -41,16 +41,15 @@ export function QuantityStepper({
         aria-label="Decrease quantity"
         disabled={disabled || value <= min}
         onClick={() => step(-1)}
-        style={{ minWidth: 36, minHeight: 36 }}
       >
-        <Icon name="minus" size={16} />
+        <Icon name="minus" size={18} />
       </button>
       <span
         aria-live="polite"
         style={{
           fontFamily: "var(--font-mono)",
           fontSize: "var(--text-base)",
-          minWidth: 32,
+          minWidth: "var(--space-8)",
           textAlign: "center",
           color: "var(--ink-900)",
         }}
@@ -63,9 +62,8 @@ export function QuantityStepper({
         aria-label="Increase quantity"
         disabled={disabled || value >= max}
         onClick={() => step(1)}
-        style={{ minWidth: 36, minHeight: 36 }}
       >
-        <Icon name="plus" size={16} />
+        <Icon name="plus" size={18} />
       </button>
     </div>
   );

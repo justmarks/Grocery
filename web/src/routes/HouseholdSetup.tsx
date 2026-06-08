@@ -171,7 +171,6 @@ export function HouseholdSetup() {
           }}
         >
           Already invited to a household? Open the invite link from your email
-          — joining flow lands in Phase 7.
         </p>
       </main>
 

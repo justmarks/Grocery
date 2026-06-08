@@ -10,7 +10,7 @@
 //   grocery.shop.store     — "all" | <store name> (shop mode)
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   findCatalogSuggestions,
   findExactCatalogMatch,
@@ -360,9 +360,11 @@ export function Home() {
             }}
           >
             <Avatar name={displayName} src={photoURL} size={32} />
-            <Link to="/settings">
-              <IconButton icon="settings" aria-label="Settings" />
-            </Link>
+            <IconButton
+              icon="settings"
+              aria-label="Settings"
+              onClick={() => navigate("/settings")}
+            />
             <IconButton
               icon="log-out"
               aria-label="Sign out"
@@ -861,11 +863,11 @@ function SuggestionChip({
         background: "var(--bg-card)",
         border: "1px solid var(--border-faint)",
         borderRadius: "var(--radius-pill)",
-        padding: "var(--space-1) var(--space-3)",
+        padding: "var(--space-2) var(--space-3)",
         cursor: "pointer",
         font: "inherit",
         color: "var(--ink-900)",
-        minHeight: 32,
+        minHeight: "var(--tap-target)",
       }}
     >
       <Icon name="plus" size={14} />
@@ -917,13 +919,13 @@ function GroupingToggle({
               fontFamily: "var(--font-sans)",
               fontSize: "var(--text-xs)",
               fontWeight: 600,
-              padding: "6px 12px",
+              padding: "0 var(--space-3)",
               borderRadius: "var(--radius-pill)",
               border: "none",
               background: active ? "var(--paper-300)" : "transparent",
               color: active ? "var(--ink-900)" : "var(--ink-500)",
               cursor: "pointer",
-              minHeight: 32,
+              minHeight: "var(--tap-target)",
             }}
           >
             {opt === "aisle" ? "Aisle" : "Store"}
