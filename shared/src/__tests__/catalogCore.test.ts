@@ -49,30 +49,55 @@ describe("findCatalogSuggestions", () => {
     entry("limes", "Limes", { timesUsed: 4 }),
     entry("lettuce", "Lettuce", { timesUsed: 8 }),
     entry("milk", "Milk", { timesUsed: 20 }),
+    entry("cocoa-puffs", "Cocoa Puffs", { timesUsed: 5 }),
+    entry("whole-milk", "Whole milk", { timesUsed: 9 }),
+    entry("berries", "Berries", { timesUsed: 3 }),
   ];
 
-  it("returns empty for whitespace-only drafts", () => {
+  it("returns empty for whitespace-only or single-char drafts", () => {
     expect(findCatalogSuggestions(catalog, "")).toEqual([]);
     expect(findCatalogSuggestions(catalog, "   ")).toEqual([]);
+    // 1-char queries are too noisy — tokenize() also floors at 2.
+    expect(findCatalogSuggestions(catalog, "l")).toEqual([]);
   });
 
-  it("matches case-insensitive prefix", () => {
-    // "le" matches lettuce (timesUsed 8) and lemons (timesUsed 12);
-    // suggestion ranking is timesUsed desc, so lemons comes first.
+  it("matches case-insensitive leading-word prefix", () => {
     const hits = findCatalogSuggestions(catalog, "Le");
     expect(hits.map((h) => h.id)).toEqual(["lemons", "lettuce"]);
   });
 
-  it("ranks by timesUsed desc, then text", () => {
-    const hits = findCatalogSuggestions(catalog, "l");
-    // Lettuce (8), Limes (4), Lemons (12) — wait, Lemons has higher
-    // timesUsed than Lettuce. Expected order: lemons (12), lettuce (8), limes (4).
-    expect(hits.map((h) => h.id)).toEqual(["lemons", "lettuce", "limes"]);
+  it("ranks by timesUsed desc within a tier", () => {
+    const hits = findCatalogSuggestions(catalog, "li");
+    // Only "Limes" matches "li" as a prefix — single result.
+    expect(hits.map((h) => h.id)).toEqual(["limes"]);
+  });
+
+  it("matches a word that isn't the first word ('puf' → 'Cocoa Puffs')", () => {
+    const hits = findCatalogSuggestions(catalog, "puf");
+    expect(hits.map((h) => h.id)).toEqual(["cocoa-puffs"]);
+  });
+
+  it("matches a later word ('milk' → 'Whole milk' as well as 'Milk')", () => {
+    const hits = findCatalogSuggestions(catalog, "milk");
+    expect(hits.map((h) => h.id)).toEqual(["milk", "whole-milk"]);
+  });
+
+  it("matches a partial later-word prefix ('berri' → 'Berries')", () => {
+    const hits = findCatalogSuggestions(catalog, "berri");
+    expect(hits.map((h) => h.id)).toEqual(["berries"]);
+  });
+
+  it("ranks leading-word matches above later-word matches", () => {
+    // "milk" matches both first-word ("Milk", times=20) and later-word
+    // ("Whole milk", times=9). The first-word match wins even though
+    // both have non-zero usage.
+    const hits = findCatalogSuggestions(catalog, "milk");
+    expect(hits[0].id).toBe("milk");
   });
 
   it("respects the limit", () => {
-    const hits = findCatalogSuggestions(catalog, "l", 2);
-    expect(hits).toHaveLength(2);
+    const hits = findCatalogSuggestions(catalog, "le", 1);
+    expect(hits).toHaveLength(1);
   });
 });
 

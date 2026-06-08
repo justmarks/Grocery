@@ -50,13 +50,20 @@ function readMillis(raw: unknown): number {
 }
 
 /**
- * Suggestions matching a draft input string. Matches against
- * `textLower` with case-insensitive prefix semantics. Returns at
- * most `limit` entries, sorted by usage.
+ * Suggestions matching a draft input string. Matches when ANY word
+ * in the catalog entry's text starts with the query — so "puf"
+ * surfaces "Cocoa Puffs" and "milk" surfaces "Whole milk". This
+ * uses the `searchTokens` array indexed at write time (every entry
+ * carries the 2..min(word, 12) prefix of each word).
  *
- * The empty-draft and whitespace-only-draft cases return [] — the
- * UI shouldn't surface unsolicited memory entries when the user
- * hasn't started typing.
+ * Within the matched set, entries whose text *starts* with the
+ * query are ranked above word-prefix-only matches ("Cocoa" outranks
+ * "Cocoa Puffs" for the query "co"). Then by `timesUsed` desc,
+ * `lastUsedAt` desc, text asc.
+ *
+ * Empty / whitespace-only / single-char drafts return [] — single
+ * characters are too noisy to surface a suggestion for, and
+ * tokenize() also bottoms out at 2 chars.
  */
 export function findCatalogSuggestions(
   catalog: readonly CatalogEntryWithId[],
@@ -64,9 +71,18 @@ export function findCatalogSuggestions(
   limit: number = 5,
 ): CatalogEntryWithId[] {
   const q = normalizeText(draft);
-  if (!q) return [];
-  const hits = catalog.filter((c) => c.textLower.startsWith(q));
-  hits.sort(rankSuggestion);
+  if (q.length < 2) return [];
+  const hits = catalog.filter(
+    (c) => c.searchTokens?.includes(q) || c.textLower.startsWith(q),
+  );
+  hits.sort((a, b) => {
+    // First-word match wins over later-word match. Keeps "Lemons"
+    // above "Yellow lemons" for the query "lem".
+    const aFirst = a.textLower.startsWith(q);
+    const bFirst = b.textLower.startsWith(q);
+    if (aFirst !== bFirst) return aFirst ? -1 : 1;
+    return rankSuggestion(a, b);
+  });
   return hits.slice(0, limit);
 }
 
