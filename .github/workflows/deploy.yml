@@ -106,7 +106,7 @@ jobs:
 
       - name: Typecheck
         run: pnpm typecheck
-D
+
       - name: Test
         run: pnpm test
 
