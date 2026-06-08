@@ -83,7 +83,6 @@ firebase.json
 Warm editorial — think a well-set cookbook page, not a SaaS dashboard. Cream paper surfaces (`--paper-100`), warm near-black ink (`--ink-900`), tomato as primary accent (buttons, links, active states), olive as the "checked / done / got-it" green (the most important semantic in shopping mode). Three fonts: **Newsreader** (serif, page titles + aisle headers), **Manrope** (sans, all UI), **JetBrains Mono** (counts + quantities + store metadata). Sentence case everywhere, no emoji, outline-only icons. Full guide: `design-system/project/readme.md`.
 
 ## TODO
-- Settings doesn't open
 - Sharing doesn't work (joining flow)
 - speed up cold start on phone
 - Polish pass deferred items
@@ -91,7 +90,6 @@ Warm editorial — think a well-set cookbook page, not a SaaS dashboard. Cream p
   - Drag-to-reorder categories in Settings — currently up/down chevrons. Functional + accessible; touch dnd would need @dnd-kit or hand-rolled touch handlers.
   - RecipeTracker side — adding a "Send to Grocery" button that constructs the /import?source=mealplan&payload=… URL and window.opens it. One-file change in RecipeTracker, deferred to a session in that repo.
   - Lighthouse audit — run against the live URL once deployed and address any specific findings.
-- Partial search (milk, berri)
 - Icons instead of text for stores
   - https://yt3.googleusercontent.com/ytc/AIdro_ntUsDzBbRsrRfsKby0Vj2Gap0fqQownWKn5gwPHBckgw=s900-c-k-c0x00ffffff-no-rj
   - https://dribbble.com/shots/6868902-Costco-App-Icon-Concept

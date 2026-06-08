@@ -35,7 +35,7 @@ function arraysEqual<T>(a: readonly T[], b: readonly T[]): boolean {
 export function Settings() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { userDoc } = useUserDoc(user?.uid ?? null);
+  const { userDoc, loading: userDocLoading } = useUserDoc(user?.uid ?? null);
   const { household, loading: householdLoading } = useHousehold(
     userDoc?.householdId ?? null,
   );
@@ -67,8 +67,15 @@ export function Settings() {
     );
   }, [name, stores, categoryOrder, household]);
 
-  // No household → bounce to setup. Loading → wait.
-  if (!householdLoading && userDoc?.householdId == null) {
+  // No household → bounce to setup. But ONLY once the user doc has
+  // actually loaded — Settings mounts a fresh useUserDoc, so userDoc
+  // is briefly null on the first render. The old guard keyed off the
+  // household hook's loading flag, which is fed `null` (→ reports
+  // "not loading") while the user doc is still in flight, so it
+  // misread that first frame as "no household" and bounced to /setup
+  // → / . Wait for userDocLoading, and require a resolved doc with a
+  // genuinely empty householdId before redirecting.
+  if (!userDocLoading && userDoc != null && userDoc.householdId == null) {
     return <Navigate to="/setup" replace />;
   }
 
