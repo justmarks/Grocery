@@ -87,15 +87,12 @@ Warm editorial — think a well-set cookbook page, not a SaaS dashboard. Cream p
 - Sharing doesn't work (joining flow)
 - speed up cold start on phone
 - Incorporate Google Analytics
-- Auto deploy from GitHub
-- Deal with functions warning: !  functions: Runtime Node.js 20 was deprecated on 2026-04-30 and will be decommissioned on 2026-10-30, after which you will not be able to deploy without upgrading. Consider upgrading now to avoid disruption. See https://cloud.google.com/functions/docs/runtime-support for full details on the lifecycle policy
 - Polish pass deferred items
   - Bitmap icons (192/256/384/512 PNG variants). The manifest references the SVG monogram with sizes: "any" for both any and maskable purposes, which Chrome / Edge / Safari 16+ accept. Lighthouse may flag this as "use PNG fallback" depending on version. To add: run an SVG-to-PNG generator (sharp or @resvg/resvg-js) and update the manifest icons array.
   - Drag-to-reorder categories in Settings — currently up/down chevrons. Functional + accessible; touch dnd would need @dnd-kit or hand-rolled touch handlers.
   - RecipeTracker side — adding a "Send to Grocery" button that constructs the /import?source=mealplan&payload=… URL and window.opens it. One-file change in RecipeTracker, deferred to a session in that repo.
   - Lighthouse audit — run against the live URL once deployed and address any specific findings.
-- Audit the app against the design system
-- partial search (milk, berri)
+- Partial search (milk, berri)
 - Icons instead of text for stores
   - https://yt3.googleusercontent.com/ytc/AIdro_ntUsDzBbRsrRfsKby0Vj2Gap0fqQownWKn5gwPHBckgw=s900-c-k-c0x00ffffff-no-rj
   - https://dribbble.com/shots/6868902-Costco-App-Icon-Concept
