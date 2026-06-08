@@ -106,7 +106,7 @@ jobs:
 
       - name: Typecheck
         run: pnpm typecheck
-
+D
       - name: Test
         run: pnpm test
 
@@ -167,6 +167,6 @@ jobs:
         run: |
           npx --yes firebase-tools@latest deploy \
             --only hosting,functions,firestore \
-            --project MARKSGROCERYLIST \
+            --project marksgrocerylist \
             --non-interactive \
             --force
