@@ -11,6 +11,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { trackEvent } from "../lib/analytics";
 import {
   findCatalogSuggestions,
   findExactCatalogMatch,
@@ -217,6 +218,7 @@ export function Home() {
         stores: remembered?.defaultStores,
         quantity: remembered?.defaultQuantity,
       });
+      trackEvent("item_added");
       flashToast(`Added ${text}`);
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -230,6 +232,7 @@ export function Home() {
     if (!household || !user) return;
     try {
       await toggleItemChecked(household.id, item.id, !item.checked, user.uid);
+      trackEvent("item_checked");
     } catch (err) {
       // eslint-disable-next-line no-console
       console.error("[home] toggle:", err);
@@ -248,6 +251,7 @@ export function Home() {
         category: next.category,
         stores: next.stores,
       });
+      trackEvent("item_updated");
       flashToast(`Updated ${next.text}`);
       setEditing(null);
     } catch (err) {
@@ -270,6 +274,7 @@ export function Home() {
     setSheetError(null);
     try {
       await deleteItem(household.id, editing.id);
+      trackEvent("item_deleted");
       flashToast(`Removed ${removed}`);
       setEditing(null);
     } catch (err) {
@@ -289,6 +294,7 @@ export function Home() {
     if (!household) return;
     try {
       await deleteItem(household.id, item.id);
+      trackEvent("item_deleted");
       flashToast(`Removed ${item.text}`);
     } catch (err) {
       // eslint-disable-next-line no-console

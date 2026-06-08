@@ -29,6 +29,7 @@ import {
   type User,
 } from "firebase/auth";
 import { auth, googleProvider, FIREBASE_CONFIGURED } from "./firebase";
+import { trackEvent } from "./analytics";
 import { upsertUserDoc } from "./userDoc";
 
 const useDevPopup = import.meta.env.DEV;
@@ -36,6 +37,7 @@ const useDevPopup = import.meta.env.DEV;
 async function doSignInWithGoogle(): Promise<void> {
   if (useDevPopup) {
     await signInWithPopup(auth, googleProvider);
+    trackEvent("login");
   } else {
     await signInWithRedirect(auth, googleProvider);
     // No event here — sign-in completes after the redirect returns;
@@ -70,7 +72,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Resolve a pending redirect sign-in on app boot. Errors surface
     // to the console; the auth-state subscription still drives UI.
-    getRedirectResult(auth).catch((err) => {
+    getRedirectResult(auth)
+    .then((result) => {
+      if (result) {
+        // Redirect sign-in just completed. Log the GA4 `login` event
+        // here so we don't miss it (popup path logs from signIn
+        // directly).
+        trackEvent("login", {
+          method: result.providerId ?? "unknown",
+        });
+      }
+    })
+    .catch((err) => {
       // eslint-disable-next-line no-console
       console.error("[auth] getRedirectResult:", err);
     });

@@ -86,7 +86,6 @@ Warm editorial — think a well-set cookbook page, not a SaaS dashboard. Cream p
 - Settings doesn't open
 - Sharing doesn't work (joining flow)
 - speed up cold start on phone
-- Incorporate Google Analytics
 - Polish pass deferred items
   - Bitmap icons (192/256/384/512 PNG variants). The manifest references the SVG monogram with sizes: "any" for both any and maskable purposes, which Chrome / Edge / Safari 16+ accept. Lighthouse may flag this as "use PNG fallback" depending on version. To add: run an SVG-to-PNG generator (sharp or @resvg/resvg-js) and update the manifest icons array.
   - Drag-to-reorder categories in Settings — currently up/down chevrons. Functional + accessible; touch dnd would need @dnd-kit or hand-rolled touch handlers.
