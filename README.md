@@ -84,6 +84,7 @@ Warm editorial — think a well-set cookbook page, not a SaaS dashboard. Cream p
 
 ## TODO
 - Settings doesn't open
+- Sharing doesn't work (joining flow)
 - speed up cold start on phone
 - Incorporate Google Analytics
 - Auto deploy from GitHub

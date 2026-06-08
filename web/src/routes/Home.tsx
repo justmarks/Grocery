@@ -330,7 +330,13 @@ export function Home() {
         background: "var(--paper-100)",
         color: "var(--ink-900)",
         fontFamily: "var(--font-sans)",
-        paddingBottom: 96, // room for the sticky bottom bar
+        // Reserve room for the sticky bottom bar:
+        //   space-20 (80) is roughly the bar's own height (tap-target
+        //   + space-3 padding top + bottom + suggestion-chip row),
+        //   space-4 keeps the last list item from kissing the divider,
+        //   and the safe-area inset hugs the home-bar on iOS.
+        paddingBottom:
+          "calc(var(--space-20) + var(--space-4) + env(safe-area-inset-bottom))",
       }}
     >
       {/* Sticky top assembly — header + mode toggle + store filter. */}
@@ -746,7 +752,7 @@ function ListByAisle({
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 2,
+                gap: "var(--space-1)",
               }}
             >
               {g.items.map((it) => (
@@ -806,7 +812,7 @@ function ListByStore({
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: 2,
+                gap: "var(--space-1)",
               }}
             >
               {g.items.map((it) => (

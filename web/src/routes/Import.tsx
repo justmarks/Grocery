@@ -341,7 +341,7 @@ export function Import() {
                   flex: 1,
                   fontSize: "var(--text-md)",
                   color: "var(--ink-900)",
-                  paddingTop: 4,
+                  paddingTop: "var(--space-1)",
                 }}
               >
                 {r.text}
@@ -361,7 +361,7 @@ export function Import() {
                   display: "flex",
                   flexWrap: "wrap",
                   gap: "var(--space-2)",
-                  paddingLeft: 4,
+                  paddingLeft: "var(--space-1)",
                 }}
               >
                 {stores.map((s) => {

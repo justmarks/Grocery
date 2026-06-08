@@ -4,7 +4,7 @@
   "private": true,
   "description": "Firebase Cloud Functions for Grocery",
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "lib/index.js",
   "scripts": {
