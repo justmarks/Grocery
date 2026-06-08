@@ -5,9 +5,12 @@
 // as one block so the controls stay reachable while a long list
 // scrolls underneath.
 //
+// Both modes group strictly by aisle (store-walk order). The app
+// opens in Shop mode by default — the common case is "I'm at the
+// store, show me what to buy."
+//
 // State that survives reloads (in localStorage):
-//   grocery.home.grouping  — "aisle" | "store" (plan mode)
-//   grocery.shop.store     — "all" | <store name> (shop mode)
+//   grocery.shop.store — "all" | <store name> (shop-mode filter)
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -16,7 +19,6 @@ import {
   findCatalogSuggestions,
   findExactCatalogMatch,
   groupByAisle,
-  groupByStore,
   itemAddedAtMillis,
   type CatalogEntryWithId,
   type GroceryCategory,
@@ -57,18 +59,9 @@ import {
 } from "../lib/items";
 import { useCatalog } from "../lib/catalog";
 
-type Grouping = "aisle" | "store";
-const GROUPING_KEY = "grocery.home.grouping";
 const STORE_FILTER_KEY = "grocery.shop.store";
-
 const EMPTY_STORES: string[] = [];
-const UNASSIGNED_LABEL = "No store yet";
 
-function readGrouping(): Grouping {
-  if (typeof window === "undefined") return "aisle";
-  const raw = window.localStorage.getItem(GROUPING_KEY);
-  return raw === "store" ? "store" : "aisle";
-}
 function readStoreFilter(): string {
   if (typeof window === "undefined") return "all";
   return window.localStorage.getItem(STORE_FILTER_KEY) ?? "all";
@@ -83,8 +76,8 @@ export function Home() {
   );
   const { catalog } = useCatalog(userDoc?.householdId ?? null);
 
-  const [mode, setMode] = useState<Mode>("plan");
-  const [grouping, setGrouping] = useState<Grouping>(readGrouping);
+  // Opens in Shop mode — the common case is shopping, not editing.
+  const [mode, setMode] = useState<Mode>("shop");
   const [storeFilter, setStoreFilter] = useState<string>(readStoreFilter);
   const [draft, setDraft] = useState("");
   const [editing, setEditing] = useState<ItemWithId | null>(null);
@@ -93,9 +86,6 @@ export function Home() {
   const [endingTrip, setEndingTrip] = useState(false);
 
   const [collapsedAisles, setCollapsedAisles] = useState<Set<string>>(
-    () => new Set(),
-  );
-  const [collapsedStores, setCollapsedStores] = useState<Set<string>>(
     () => new Set(),
   );
 
@@ -121,9 +111,6 @@ export function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    window.localStorage.setItem(GROUPING_KEY, grouping);
-  }, [grouping]);
   useEffect(() => {
     window.localStorage.setItem(STORE_FILTER_KEY, storeFilter);
   }, [storeFilter]);
@@ -165,18 +152,9 @@ export function Home() {
     () => groupByAisle(shopVisibleItems, categoryOrder),
     [shopVisibleItems, categoryOrder],
   );
-  const storeGroupsPlan = useMemo(
-    () => groupByStore(groupableItems, stores, categoryOrder),
-    [groupableItems, stores, categoryOrder],
-  );
 
-  // Shop-mode progress + end-trip availability are scoped to the
-  // visible items (i.e., respect the store filter). End-trip itself
-  // clears household-wide checked items — see handleEndTrip below.
-  const visibleCheckedCount = useMemo(
-    () => shopVisibleItems.filter((i) => i.checked).length,
-    [shopVisibleItems],
-  );
+  // End-trip is enabled whenever anything across the household is
+  // checked (not just what's visible under the current filter).
   const householdCheckedCount = useMemo(
     () => items.filter((i) => i.checked).length,
     [items],
@@ -192,14 +170,6 @@ export function Home() {
       const next = new Set(prev);
       if (next.has(slug)) next.delete(slug);
       else next.add(slug);
-      return next;
-    });
-  }
-  function toggleCollapsedStore(store: string) {
-    setCollapsedStores((prev) => {
-      const next = new Set(prev);
-      if (next.has(store)) next.delete(store);
-      else next.add(store);
       return next;
     });
   }
@@ -329,6 +299,27 @@ export function Home() {
     && shopVisibleItems.length > 0
     && shopVisibleItems.every((i) => i.checked);
 
+  const planTrailing = (it: RenderableItem) => (
+    <div style={{ display: "flex" }}>
+      <IconButton
+        icon="pencil"
+        size={18}
+        aria-label={`Edit ${it.text}`}
+        onClick={() => {
+          setSheetError(null);
+          setEditing(it);
+        }}
+      />
+      <IconButton
+        icon="trash"
+        size={18}
+        variant="danger"
+        aria-label={`Remove ${it.text}`}
+        onClick={() => handleRowDelete(it)}
+      />
+    </div>
+  );
+
   return (
     <div
       style={{
@@ -336,11 +327,7 @@ export function Home() {
         background: "var(--paper-100)",
         color: "var(--ink-900)",
         fontFamily: "var(--font-sans)",
-        // Reserve room for the sticky bottom bar:
-        //   space-20 (80) is roughly the bar's own height (tap-target
-        //   + space-3 padding top + bottom + suggestion-chip row),
-        //   space-4 keeps the last list item from kissing the divider,
-        //   and the safe-area inset hugs the home-bar on iOS.
+        // Reserve room for the sticky bottom bar.
         paddingBottom:
           "calc(var(--space-20) + var(--space-4) + env(safe-area-inset-bottom))",
       }}
@@ -393,35 +380,9 @@ export function Home() {
             display: "flex",
             alignItems: "center",
             gap: "var(--space-3)",
-            flexWrap: "wrap",
           }}
         >
           <ModeToggle value={mode} onChange={setMode} />
-          <span
-            style={{
-              fontFamily: "var(--font-mono)",
-              fontSize: "var(--text-sm)",
-              color: mode === "shop" ? "var(--olive-700)" : "var(--ink-500)",
-            }}
-          >
-            {mode === "shop"
-              ? `${visibleCheckedCount}/${shopVisibleItems.length} in the cart`
-              : `${items.length} item${items.length === 1 ? "" : "s"}`}
-          </span>
-          {mode === "plan" && !isEmpty && (
-            <>
-              <span
-                style={{
-                  marginLeft: "auto",
-                  color: "var(--ink-500)",
-                  fontSize: "var(--text-sm)",
-                }}
-              >
-                Group by
-              </span>
-              <GroupingToggle value={grouping} onChange={setGrouping} />
-            </>
-          )}
         </div>
 
         {mode === "shop" && stores.length > 0 && (
@@ -448,100 +409,26 @@ export function Home() {
           padding: "var(--space-4) var(--space-5)",
         }}
       >
-        <p
-          style={{
-            color: "var(--ink-500)",
-            fontSize: "var(--text-sm)",
-            margin: "var(--space-2) 0 var(--space-1)",
-            textTransform: "uppercase",
-            letterSpacing: "var(--tracking-caps)",
-            fontWeight: 600,
-          }}
-        >
-          {household
-            ? `${household.memberIds.length} member${household.memberIds.length === 1 ? "" : "s"}`
-            : ""}
-        </p>
-        <h1
-          style={{
-            fontFamily: "var(--font-display)",
-            fontWeight: 500,
-            fontSize: "var(--text-2xl)",
-            letterSpacing: "var(--tracking-tight)",
-            margin: "0 0 var(--space-4)",
-          }}
-        >
-          {household?.name ?? "Your household"}
-        </h1>
-
         {/* ---------- Plan mode ---------- */}
-        {mode === "plan" && (
-          isEmpty ? (
+        {mode === "plan" &&
+          (isEmpty ? (
             <EmptyState icon="list-checks" title="Your list is empty.">
               Add items as you think of them, or import a meal plan from
               RecipeTracker.
             </EmptyState>
-          ) : grouping === "aisle" ? (
+          ) : (
             <ListByAisle
               groups={aisleGroupsPlan}
               collapsed={collapsedAisles}
               onToggleCollapse={toggleCollapsedAisle}
-              showCategory={false}
               onItemToggle={handleToggle}
-              renderTrailing={(it) => (
-                <div style={{ display: "flex" }}>
-                  <IconButton
-                    icon="pencil"
-                    size={18}
-                    aria-label={`Edit ${it.text}`}
-                    onClick={() => {
-                      setSheetError(null);
-                      setEditing(it);
-                    }}
-                  />
-                  <IconButton
-                    icon="trash"
-                    size={18}
-                    variant="danger"
-                    aria-label={`Remove ${it.text}`}
-                    onClick={() => handleRowDelete(it)}
-                  />
-                </div>
-              )}
+              renderTrailing={planTrailing}
             />
-          ) : (
-            <ListByStore
-              groups={storeGroupsPlan}
-              collapsed={collapsedStores}
-              onToggleCollapse={toggleCollapsedStore}
-              onItemToggle={handleToggle}
-              renderTrailing={(it) => (
-                <div style={{ display: "flex" }}>
-                  <IconButton
-                    icon="pencil"
-                    size={18}
-                    aria-label={`Edit ${it.text}`}
-                    onClick={() => {
-                      setSheetError(null);
-                      setEditing(it);
-                    }}
-                  />
-                  <IconButton
-                    icon="trash"
-                    size={18}
-                    variant="danger"
-                    aria-label={`Remove ${it.text}`}
-                    onClick={() => handleRowDelete(it)}
-                  />
-                </div>
-              )}
-            />
-          )
-        )}
+          ))}
 
         {/* ---------- Shop mode ---------- */}
-        {mode === "shop" && (
-          isEmpty ? (
+        {mode === "shop" &&
+          (isEmpty ? (
             <EmptyState icon="shopping-cart" title="Nothing on the list yet.">
               Switch to Plan to add items, then come back here to shop.
             </EmptyState>
@@ -567,12 +454,10 @@ export function Home() {
               groups={aisleGroupsShop}
               collapsed={collapsedAisles}
               onToggleCollapse={toggleCollapsedAisle}
-              showCategory={false}
               onItemToggle={handleToggle}
               renderTrailing={null}
             />
-          )
-        )}
+          ))}
       </main>
 
       {/* ---------- Sticky bottom ---------- */}
@@ -660,30 +545,13 @@ export function Home() {
             zIndex: 20,
           }}
         >
-          <div
-            style={{
-              width: "100%",
-              maxWidth: 560,
-              display: "flex",
-              alignItems: "center",
-              gap: "var(--space-3)",
-            }}
-          >
-            <span
-              style={{
-                fontFamily: "var(--font-mono)",
-                fontSize: "var(--text-sm)",
-                color: "var(--ink-500)",
-              }}
-            >
-              {householdCheckedCount} checked
-            </span>
-            <span style={{ flex: 1 }} />
+          <div style={{ width: "100%", maxWidth: 560, display: "flex" }}>
             <Button
               variant="success"
               icon={endingTrip ? undefined : "check"}
               onClick={handleEndTrip}
               disabled={endingTrip || householdCheckedCount === 0}
+              style={{ flex: 1 }}
             >
               {endingTrip ? "Ending…" : "End trip"}
             </Button>
@@ -717,7 +585,7 @@ export function Home() {
   );
 }
 
-// ---------- Section renderers ----------
+// ---------- Section renderer ----------
 
 type RenderableItem = ItemWithId & { addedAtMillis: number };
 
@@ -725,14 +593,12 @@ function ListByAisle({
   groups,
   collapsed,
   onToggleCollapse,
-  showCategory,
   onItemToggle,
   renderTrailing,
 }: {
   groups: { category: GroceryCategory; items: RenderableItem[] }[];
   collapsed: Set<string>;
   onToggleCollapse: (slug: string) => void;
-  showCategory: boolean;
   onItemToggle: (item: ItemWithId) => void;
   renderTrailing: ((item: RenderableItem) => React.ReactNode) | null;
 }) {
@@ -768,7 +634,6 @@ function ListByAisle({
                   quantity={it.quantity}
                   stores={it.stores}
                   category={it.category as GroceryCategory}
-                  showCategory={showCategory}
                   checked={it.checked}
                   onToggle={() => onItemToggle(it)}
                   trailing={renderTrailing ? renderTrailing(it) : undefined}
@@ -778,79 +643,6 @@ function ListByAisle({
           </CollapsibleSection>
         );
       })}
-    </div>
-  );
-}
-
-function ListByStore({
-  groups,
-  collapsed,
-  onToggleCollapse,
-  onItemToggle,
-  renderTrailing,
-}: {
-  groups: { store: string; items: RenderableItem[] }[];
-  collapsed: Set<string>;
-  onToggleCollapse: (store: string) => void;
-  onItemToggle: (item: ItemWithId) => void;
-  renderTrailing: ((item: RenderableItem) => React.ReactNode) | null;
-}) {
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        gap: "var(--space-6)",
-      }}
-    >
-      {groups.map((g) => {
-        const open = !collapsed.has(g.store);
-        const label = g.store || UNASSIGNED_LABEL;
-        return (
-          <CollapsibleSection
-            key={g.store || "_unassigned"}
-            open={open}
-            onToggle={() => onToggleCollapse(g.store)}
-            toggleLabel={`${open ? "Collapse" : "Expand"} ${label}`}
-            header={<StoreHeader store={g.store} count={g.items.length} />}
-          >
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "var(--space-1)",
-              }}
-            >
-              {g.items.map((it) => (
-                <GroceryItemRow
-                  key={`${g.store}:${it.id}`}
-                  text={it.text}
-                  quantity={it.quantity}
-                  stores={it.stores}
-                  category={it.category as GroceryCategory}
-                  showCategory
-                  checked={it.checked}
-                  onToggle={() => onItemToggle(it)}
-                  trailing={renderTrailing ? renderTrailing(it) : undefined}
-                />
-              ))}
-            </div>
-          </CollapsibleSection>
-        );
-      })}
-    </div>
-  );
-}
-
-function StoreHeader({ store, count }: { store: string; count: number }) {
-  const label = store || UNASSIGNED_LABEL;
-  return (
-    <div className="gr-aisle">
-      <span style={{ color: "var(--ink-500)", display: "inline-flex" }}>
-        <Icon name={store ? "store" : "filter"} size={18} />
-      </span>
-      <span className="gr-aisle__name">{label}</span>
-      <span className="gr-aisle__count">{count}</span>
     </div>
   );
 }
@@ -897,53 +689,5 @@ function SuggestionChip({
         </span>
       )}
     </button>
-  );
-}
-
-function GroupingToggle({
-  value,
-  onChange,
-}: {
-  value: Grouping;
-  onChange: (g: Grouping) => void;
-}) {
-  return (
-    <div
-      role="group"
-      aria-label="Grouping"
-      style={{
-        display: "inline-flex",
-        border: "1px solid var(--border-faint)",
-        borderRadius: "var(--radius-pill)",
-        padding: 2,
-        background: "var(--bg-card)",
-      }}
-    >
-      {(["aisle", "store"] as const).map((opt) => {
-        const active = value === opt;
-        return (
-          <button
-            key={opt}
-            type="button"
-            aria-pressed={active}
-            onClick={() => onChange(opt)}
-            style={{
-              fontFamily: "var(--font-sans)",
-              fontSize: "var(--text-xs)",
-              fontWeight: 600,
-              padding: "0 var(--space-3)",
-              borderRadius: "var(--radius-pill)",
-              border: "none",
-              background: active ? "var(--paper-300)" : "transparent",
-              color: active ? "var(--ink-900)" : "var(--ink-500)",
-              cursor: "pointer",
-              minHeight: "var(--tap-target)",
-            }}
-          >
-            {opt === "aisle" ? "Aisle" : "Store"}
-          </button>
-        );
-      })}
-    </div>
   );
 }
