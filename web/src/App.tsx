@@ -10,14 +10,17 @@ import { setAnalyticsUser, trackEvent } from "./lib/analytics";
 import { Brand } from "./components/ui";
 import { RequireAuth } from "./routes/RequireAuth";
 import { RequireHousehold } from "./routes/RequireHousehold";
-// SignIn + Home are the two primary surfaces (unauthed / authed
-// landing) — keep them eager so there's no chunk fetch on the first
-// meaningful paint. The secondary routes below are code-split: their
-// JS isn't downloaded or parsed until the user navigates to them,
-// trimming the cold-start bundle.
-import { Home } from "./routes/Home";
+// SignIn is the only eager route — it's the logged-out landing and
+// must paint instantly. Everything else is code-split so its JS isn't
+// downloaded or parsed until navigated to, keeping the initial bundle
+// (and Lighthouse's "unused JavaScript" on the logged-out audit) small.
+// Home's chunk is precached by the service worker, so after the first
+// visit it's effectively instant despite being lazy.
 import { SignIn } from "./routes/SignIn";
 
+const Home = lazy(() =>
+  import("./routes/Home").then((m) => ({ default: m.Home })),
+);
 const HouseholdSetup = lazy(() =>
   import("./routes/HouseholdSetup").then((m) => ({ default: m.HouseholdSetup })),
 );
