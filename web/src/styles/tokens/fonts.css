@@ -4,37 +4,37 @@
    Book (sibling app). Newsreader is the editorial serif used for
    the wordmark + section headers; Manrope is the workhorse UI sans;
    JetBrains Mono carries counts, quantities, and tabular numerals.
-   Font files live under /public/fonts/ → served at /fonts/* in prod.
+
+   Shipped as WOFF2 (variable) — ~44% smaller than the source TTFs,
+   which shrinks the SW precache + the first-load font payload.
+   WOFF2 is supported by every browser that can run this PWA. Files
+   live under /public/fonts/ → served at /fonts/* in prod.
    ============================================================= */
 
 @font-face {
   font-family: "Newsreader";
-  src: url("/fonts/Newsreader-VariableFont_opsz_wght.ttf")
-    format("truetype-variations");
+  src: url("/fonts/Newsreader-VariableFont_opsz_wght.woff2") format("woff2");
   font-weight: 200 800;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "Newsreader";
-  src: url("/fonts/Newsreader-Italic-VariableFont_opsz_wght.ttf")
-    format("truetype-variations");
+  src: url("/fonts/Newsreader-Italic-VariableFont_opsz_wght.woff2") format("woff2");
   font-weight: 200 800;
   font-style: italic;
   font-display: swap;
 }
 @font-face {
   font-family: "Manrope";
-  src: url("/fonts/Manrope-VariableFont_wght.ttf")
-    format("truetype-variations");
+  src: url("/fonts/Manrope-VariableFont_wght.woff2") format("woff2");
   font-weight: 200 800;
   font-style: normal;
   font-display: swap;
 }
 @font-face {
   font-family: "JetBrains Mono";
-  src: url("/fonts/JetBrainsMono-VariableFont_wght.ttf")
-    format("truetype-variations");
+  src: url("/fonts/JetBrainsMono-VariableFont_wght.woff2") format("woff2");
   font-weight: 100 800;
   font-style: normal;
   font-display: swap;

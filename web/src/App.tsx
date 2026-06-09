@@ -4,17 +4,48 @@
 // RequireAuth and RequireHousehold.
 
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { useAuth } from "./lib/useAuth";
 import { setAnalyticsUser, trackEvent } from "./lib/analytics";
-import { Home } from "./routes/Home";
-import { HouseholdSetup } from "./routes/HouseholdSetup";
-import { Import } from "./routes/Import";
-import { Invite } from "./routes/Invite";
+import { Brand } from "./components/ui";
 import { RequireAuth } from "./routes/RequireAuth";
 import { RequireHousehold } from "./routes/RequireHousehold";
-import { Settings } from "./routes/Settings";
+// SignIn + Home are the two primary surfaces (unauthed / authed
+// landing) — keep them eager so there's no chunk fetch on the first
+// meaningful paint. The secondary routes below are code-split: their
+// JS isn't downloaded or parsed until the user navigates to them,
+// trimming the cold-start bundle.
+import { Home } from "./routes/Home";
 import { SignIn } from "./routes/SignIn";
+
+const HouseholdSetup = lazy(() =>
+  import("./routes/HouseholdSetup").then((m) => ({ default: m.HouseholdSetup })),
+);
+const Settings = lazy(() =>
+  import("./routes/Settings").then((m) => ({ default: m.Settings })),
+);
+const Import = lazy(() =>
+  import("./routes/Import").then((m) => ({ default: m.Import })),
+);
+const Invite = lazy(() =>
+  import("./routes/Invite").then((m) => ({ default: m.Invite })),
+);
+
+function RouteFallback() {
+  return (
+    <div
+      style={{
+        minHeight: "100dvh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "var(--paper-100)",
+      }}
+    >
+      <Brand variant="mark" />
+    </div>
+  );
+}
 
 export function App() {
   const { user  } = useAuth();
@@ -30,30 +61,32 @@ export function App() {
   return (
     <BrowserRouter>
       <PageViewTracker />
-      <Routes>
-        <Route path="/signin" element={<SignIn />} />
+      <Suspense fallback={<RouteFallback />}>
+        <Routes>
+          <Route path="/signin" element={<SignIn />} />
 
-        {/* Auth-only routes — no household required. */}
-        <Route element={<RequireAuth />}>
-          <Route path="/setup" element={<HouseholdSetup />} />
-          {/* /invite and /import are intentionally outside
-              RequireHousehold — a brand-new user may land here
-              directly from an email or RecipeTracker push, before
-              they've created any household of their own. /import
-              trampolines through /setup if needed; /invite renders
-              its own no-household-friendly UI. */}
-          <Route path="/invite/:inviteId" element={<Invite />} />
-          <Route path="/import" element={<Import />} />
+          {/* Auth-only routes — no household required. */}
+          <Route element={<RequireAuth />}>
+            <Route path="/setup" element={<HouseholdSetup />} />
+            {/* /invite and /import are intentionally outside
+                RequireHousehold — a brand-new user may land here
+                directly from an email or RecipeTracker push, before
+                they've created any household of their own. /import
+                trampolines through /setup if needed; /invite renders
+                its own no-household-friendly UI. */}
+            <Route path="/invite/:inviteId" element={<Invite />} />
+            <Route path="/import" element={<Import />} />
 
-          {/* Auth + household-required routes. */}
-          <Route element={<RequireHousehold />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/settings" element={<Settings />} />
+            {/* Auth + household-required routes. */}
+            <Route element={<RequireHousehold />}>
+              <Route path="/" element={<Home />} />
+              <Route path="/settings" element={<Settings />} />
+            </Route>
           </Route>
-        </Route>
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

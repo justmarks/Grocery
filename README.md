@@ -83,7 +83,6 @@ firebase.json
 Warm editorial — think a well-set cookbook page, not a SaaS dashboard. Cream paper surfaces (`--paper-100`), warm near-black ink (`--ink-900`), tomato as primary accent (buttons, links, active states), olive as the "checked / done / got-it" green (the most important semantic in shopping mode). Three fonts: **Newsreader** (serif, page titles + aisle headers), **Manrope** (sans, all UI), **JetBrains Mono** (counts + quantities + store metadata). Sentence case everywhere, no emoji, outline-only icons. Full guide: `design-system/project/readme.md`.
 
 ## TODO
-- speed up cold start on phone
 - Polish pass deferred items
   - Bitmap icons (192/256/384/512 PNG variants). The manifest references the SVG monogram with sizes: "any" for both any and maskable purposes, which Chrome / Edge / Safari 16+ accept. Lighthouse may flag this as "use PNG fallback" depending on version. To add: run an SVG-to-PNG generator (sharp or @resvg/resvg-js) and update the manifest icons array.
   - Drag-to-reorder categories in Settings — currently up/down chevrons. Functional + accessible; touch dnd would need @dnd-kit or hand-rolled touch handlers.

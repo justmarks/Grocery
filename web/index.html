@@ -7,6 +7,14 @@
     <meta name="theme-color" content="#c8553d" />
     <meta name="description" content="A shared household grocery list for planning trips and shopping efficiently." />
 
+    <!-- Warm up TLS/DNS to Firebase's hot data-path endpoints so the
+         first auth + Firestore calls don't pay connection setup. These
+         only open a connection — no payload — so they don't compete
+         with the critical JS the way a font preload would. -->
+    <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://identitytoolkit.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://securetoken.googleapis.com" crossorigin />
+
     <!-- Apple PWA -->
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/grocery-icon.svg" />
     <meta name="mobile-web-app-capable" content="yes" />

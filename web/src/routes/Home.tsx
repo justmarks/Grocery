@@ -88,6 +88,10 @@ export function Home() {
   const [collapsedAisles, setCollapsedAisles] = useState<Set<string>>(
     () => new Set(),
   );
+  // Shop-mode "Checked" review section — collapsed by default so the
+  // focus stays on what's left to get; the header count signals
+  // there's something to review.
+  const [checkedOpen, setCheckedOpen] = useState(false);
 
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<number | null>(null);
@@ -148,9 +152,23 @@ export function Home() {
     () => groupByAisle(groupableItems, categoryOrder),
     [groupableItems, categoryOrder],
   );
+
+  // Shop mode separates "still to get" from "already in the cart".
+  // Unchecked items group by aisle at the top; checked items collect
+  // in a single collapsible "Checked" section at the bottom so the
+  // shopper can review everything they ticked off (and undo a
+  // mis-tap) before ending the trip.
+  const shopUnchecked = useMemo(
+    () => shopVisibleItems.filter((it) => !it.checked),
+    [shopVisibleItems],
+  );
+  const shopChecked = useMemo(
+    () => shopVisibleItems.filter((it) => it.checked),
+    [shopVisibleItems],
+  );
   const aisleGroupsShop = useMemo(
-    () => groupByAisle(shopVisibleItems, categoryOrder),
-    [shopVisibleItems, categoryOrder],
+    () => groupByAisle(shopUnchecked, categoryOrder),
+    [shopUnchecked, categoryOrder],
   );
 
   // End-trip is enabled whenever anything across the household is
@@ -294,10 +312,7 @@ export function Home() {
 
   const isEmpty = !itemsLoading && items.length === 0;
   const shopIsEmpty = !itemsLoading && shopVisibleItems.length === 0;
-  const allCheckedInFilteredView =
-    !shopIsEmpty
-    && shopVisibleItems.length > 0
-    && shopVisibleItems.every((i) => i.checked);
+  const allChecked = shopUnchecked.length === 0 && shopChecked.length > 0;
 
   const planTrailing = (it: RenderableItem) => (
     <div style={{ display: "flex" }}>
@@ -446,18 +461,34 @@ export function Home() {
                 ? "Switch to Plan to add items."
                 : "Pick a different store or switch to All stores."}
             </EmptyState>
-          ) : allCheckedInFilteredView ? (
-            <EmptyState icon="check" title="All checked off! Nice work.">
-              Tap <strong>End trip</strong> to clear them from the list.
-            </EmptyState>
           ) : (
-            <ListByAisle
-              groups={aisleGroupsShop}
-              collapsed={collapsedAisles}
-              onToggleCollapse={toggleCollapsedAisle}
-              onItemToggle={handleToggle}
-              renderTrailing={null}
-            />
+            <>
+              {allChecked ? (
+                <EmptyState icon="check" title="All checked off! Nice work.">
+                  Review what you got below, or tap <strong>End trip</strong> to
+                  clear the list.
+                </EmptyState>
+              ) : (
+                <ListByAisle
+                  groups={aisleGroupsShop}
+                  collapsed={collapsedAisles}
+                  onToggleCollapse={toggleCollapsedAisle}
+                  onItemToggle={handleToggle}
+                  renderTrailing={null}
+                />
+              )}
+
+              {shopChecked.length > 0 && (
+                <CheckedSection
+                  items={shopChecked}
+                  // Auto-expand when there's nothing left to get, so the
+                  // review is immediate; otherwise the shopper opts in.
+                  open={checkedOpen || allChecked}
+                  onToggleOpen={() => setCheckedOpen((o) => !o)}
+                  onUncheck={handleToggle}
+                />
+              )}
+            </>
           ))}
       </main>
 
@@ -644,6 +675,66 @@ function ListByAisle({
           </CollapsibleSection>
         );
       })}
+    </div>
+  );
+}
+
+function CheckedSection({
+  items,
+  open,
+  onToggleOpen,
+  onUncheck,
+}: {
+  items: RenderableItem[];
+  open: boolean;
+  onToggleOpen: () => void;
+  onUncheck: (item: ItemWithId) => void;
+}) {
+  return (
+    <div style={{ marginTop: "var(--space-8)" }}>
+      <CollapsibleSection
+        open={open}
+        onToggle={onToggleOpen}
+        toggleLabel={`${open ? "Hide" : "Show"} checked items`}
+        header={
+          <div className="gr-aisle">
+            <span style={{ color: "var(--olive-700)", display: "inline-flex" }}>
+              <Icon name="check" size={18} />
+            </span>
+            <span className="gr-aisle__name">Checked</span>
+            <span className="gr-aisle__count">{items.length}</span>
+          </div>
+        }
+      >
+        <p
+          style={{
+            margin: "0 0 var(--space-2)",
+            color: "var(--ink-500)",
+            fontSize: "var(--text-sm)",
+          }}
+        >
+          Tap a checkbox to put an item back on the list.
+        </p>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "var(--space-1)",
+          }}
+        >
+          {items.map((it) => (
+            <GroceryItemRow
+              key={it.id}
+              text={it.text}
+              quantity={it.quantity}
+              stores={it.stores}
+              category={it.category as GroceryCategory}
+              checked
+              onToggle={() => onUncheck(it)}
+            />
+          ))}
+        </div>
+      </CollapsibleSection>
     </div>
   );
 }

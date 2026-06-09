@@ -4,7 +4,14 @@
 
 import { initializeApp, getApps } from "firebase/app";
 import { getAuth, GoogleAuthProvider, connectAuthEmulator } from "firebase/auth";
-import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
+import {
+  getFirestore,
+  initializeFirestore,
+  persistentLocalCache,
+  persistentMultipleTabManager,
+  connectFirestoreEmulator,
+  type Firestore,
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -35,7 +42,30 @@ export const firebaseApp = getApps().length
   : initializeApp(firebaseConfig);
 
 export const auth = getAuth(firebaseApp);
-export const db = getFirestore(firebaseApp);
+
+// Persistent IndexedDB cache so a repeat cold load renders the
+// last-seen list instantly from disk while the network refreshes in
+// the background — the single biggest perceived-cold-start win on a
+// phone. The multi-tab manager keeps multiple open tabs coherent.
+//
+// `initializeFirestore` throws if Firestore was already initialized
+// (e.g. a Vite HMR re-run of this module), and persistent cache can't
+// be enabled in some locked-down storage contexts — fall back to the
+// already-initialized / in-memory instance in both cases so the app
+// still works.
+function makeDb(): Firestore {
+  try {
+    return initializeFirestore(firebaseApp, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    });
+  } catch {
+    return getFirestore(firebaseApp);
+  }
+}
+
+export const db = makeDb();
 
 export const googleProvider = new GoogleAuthProvider();
 // Force account chooser so a wrong-account-mid-session is recoverable

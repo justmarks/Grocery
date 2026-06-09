@@ -1,11 +1,13 @@
-import {
-  getAnalytics,
-  isSupported,
-  logEvent,
-  setUserId,
-  type Analytics,
-} from "firebase/analytics";
+// `firebase/analytics` is imported DYNAMICALLY (inside ensureAnalytics)
+// so its ~40KB-gzipped SDK is split into its own chunk and fetched
+// only when the first event fires — well after first paint. A static
+// top-level import would pull it onto the cold-start critical path
+// even though init is deferred. Only the types are imported statically
+// (erased at build, zero runtime cost).
+import type { Analytics } from "firebase/analytics";
 import { firebaseApp } from "./firebase";
+
+type AnalyticsModule = typeof import("firebase/analytics");
 
 /**
  * Google Analytics (GA4) integration via firebase/analytics.
@@ -35,6 +37,7 @@ import { firebaseApp } from "./firebase";
  */
 
 let analytics: Analytics | null = null;
+let mod: AnalyticsModule | null = null;
 let initPromise: Promise<Analytics | null> | null = null;
 
 const isEmulator = import.meta.env.VITE_USE_EMULATOR === "1";
@@ -61,9 +64,10 @@ function ensureAnalytics(): Promise<Analytics | null> {
 
   initPromise = (async () => {
     try {
-      const supported = await isSupported();
+      mod = await import("firebase/analytics");
+      const supported = await mod.isSupported();
       if (!supported) return null;
-      analytics = getAnalytics(firebaseApp);
+      analytics = mod.getAnalytics(firebaseApp);
       return analytics;
     } catch (err) {
       // Don't spam the console on every failed init in a long session —
@@ -107,7 +111,7 @@ export function trackEvent(
   params?: Record<string, string | number | boolean | undefined>,
 ): void {
   void ensureAnalytics().then((a) => {
-    if (!a) return;
+    if (!a || !mod) return;
     try {
       // Drop undefined params — GA4 stores them as the string
       // "undefined" otherwise, which dirties the dashboard.
@@ -116,7 +120,7 @@ export function trackEvent(
             Object.entries(params).filter(([, v]) => v !== undefined),
           )
         : undefined;
-      logEvent(a, name as never, cleaned as never);
+      mod.logEvent(a, name as never, cleaned as never);
     } catch (err) {
       // Per-event failures shouldn't break subsequent calls; analytics
       // is still pointed at the cached instance for the next event.
@@ -136,9 +140,9 @@ export function trackEvent(
  */
 export function setAnalyticsUser(uid: string | null): void {
   void ensureAnalytics().then((a) => {
-    if (!a) return;
+    if (!a || !mod) return;
     try {
-      setUserId(a, uid ?? "");
+      mod.setUserId(a, uid ?? "");
     } catch (err) {
       console.warn("setAnalyticsUser failed:", err);
     }
