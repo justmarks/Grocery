@@ -55,9 +55,16 @@ export default defineConfig({
         categories: ["food", "lifestyle", "productivity"],
         launch_handler: { client_mode: "navigate-existing" },
         icons: [
-          // SVG is enough for v1; bitmap icons get generated later in Phase 9.
+          // Bitmap PNGs (generated from the brand SVG via
+          // scripts/generate-icons.mjs) for broad install-prompt +
+          // Lighthouse compatibility, plus the SVG as a scalable any.
+          { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+          { src: "/icons/icon-256.png", sizes: "256x256", type: "image/png", purpose: "any" },
+          { src: "/icons/icon-384.png", sizes: "384x384", type: "image/png", purpose: "any" },
+          { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+          { src: "/icons/icon-maskable-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
+          { src: "/icons/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
           { src: "/icons/grocery-icon.svg", sizes: "any", type: "image/svg+xml", purpose: "any" },
-          { src: "/icons/grocery-icon.svg", sizes: "any", type: "image/svg+xml", purpose: "maskable" },
         ],
         prefer_related_applications: false,
       },

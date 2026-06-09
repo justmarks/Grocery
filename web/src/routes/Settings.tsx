@@ -12,7 +12,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import type { GroceryCategory } from "@grocery/shared";
 import {
-  AisleHeader,
   Brand,
   Button,
   Field,
@@ -21,7 +20,7 @@ import {
   StoreLogo,
   Toast,
 } from "../components/ui";
-import { categoryLabel } from "../components/ui/grocery/categories";
+import { CategoryOrderList } from "../components/CategoryOrderList";
 import { MembersSection } from "../components/MembersSection";
 import { useAuth } from "../lib/useAuth";
 import { useUserDoc } from "../lib/userDoc";
@@ -93,18 +92,6 @@ export function Settings() {
   // genuinely empty householdId before redirecting.
   if (!userDocLoading && userDoc != null && userDoc.householdId == null) {
     return <Navigate to="/setup" replace />;
-  }
-
-  function moveCategory(idx: number, dir: -1 | 1) {
-    const target = idx + dir;
-    if (target < 0 || target >= categoryOrder.length) return;
-    setCategoryOrder((prev) => {
-      const next = [...prev];
-      const tmp = next[idx];
-      next[idx] = next[target];
-      next[target] = tmp;
-      return next;
-    });
   }
 
   function removeStore(idx: number) {
@@ -416,61 +403,14 @@ export function Settings() {
                 }}
               >
                 The order sections show up — both when planning and when
-                shopping. Re-order to match how you actually walk the store.
+                shopping. Drag the handle to match how you actually walk the
+                store.
               </p>
-              <ul
-                style={{
-                  listStyle: "none",
-                  padding: 0,
-                  margin: 0,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "var(--space-1)",
-                }}
-              >
-                {categoryOrder.map((slug, i) => (
-                  <li
-                    key={slug}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "var(--space-2)",
-                      background: "var(--bg-card)",
-                      border: "1px solid var(--border-faint)",
-                      borderRadius: "var(--radius-md)",
-                      padding: "var(--space-1) var(--space-2)",
-                    }}
-                  >
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <AisleHeader category={slug} />
-                    </div>
-                    <span
-                      aria-hidden
-                      style={{
-                        fontFamily: "var(--font-mono)",
-                        fontSize: "var(--text-xs)",
-                        color: "var(--ink-300)",
-                        minWidth: 22,
-                        textAlign: "right",
-                      }}
-                    >
-                      {i + 1}
-                    </span>
-                    <IconButton
-                      icon="chevron-up"
-                      aria-label={`Move ${categoryLabel(slug)} up`}
-                      disabled={busy || i === 0}
-                      onClick={() => moveCategory(i, -1)}
-                    />
-                    <IconButton
-                      icon="chevron-down"
-                      aria-label={`Move ${categoryLabel(slug)} down`}
-                      disabled={busy || i === categoryOrder.length - 1}
-                      onClick={() => moveCategory(i, 1)}
-                    />
-                  </li>
-                ))}
-              </ul>
+              <CategoryOrderList
+                order={categoryOrder}
+                onChange={setCategoryOrder}
+                disabled={busy}
+              />
             </section>
 
             {/* ---------- Save bar ---------- */}
