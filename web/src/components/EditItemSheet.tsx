@@ -8,7 +8,7 @@ import {
   GROCERY_CATEGORIES,
   type GroceryCategory,
 } from "@grocery/shared";
-import { Button, Field, IconButton, Input, Select } from "./ui";
+import { Button, Field, IconButton, Input, Select, StoreLogo } from "./ui";
 import { categoryLabel } from "./ui/grocery/categories";
 import { QuantityStepper } from "./QuantityStepper";
 
@@ -23,8 +23,10 @@ export type EditItemSheetProps = {
   open: boolean;
   title: string;
   initial: EditItemDraft;
-  /** Stores configured on the household — drives the multi-select pills. */
+  /** Stores configured on the household — drives the multi-select discs. */
   availableStores: string[];
+  /** Optional per-store logo data URLs, keyed by store name. */
+  storeLogos?: Record<string, string>;
   /** Saving — disables fields and shows the busy label. */
   saving?: boolean;
   /** Error message rendered below the form. */
@@ -40,6 +42,7 @@ export function EditItemSheet({
   title,
   initial,
   availableStores,
+  storeLogos,
   saving = false,
   error = null,
   onClose,
@@ -191,15 +194,33 @@ export function EditItemSheet({
               {availableStores.map((s) => {
                 const active = draft.stores.includes(s);
                 return (
+                  // Same disc treatment as the shop-mode StoreFilter:
+                  // logo (or monogram) with a tomato ring when selected.
                   <button
                     key={s}
                     type="button"
-                    className="gr-chip"
+                    aria-label={s}
                     aria-pressed={active}
+                    title={s}
                     onClick={() => toggleStore(s)}
                     disabled={saving}
+                    style={{
+                      flex: "0 0 auto",
+                      padding: 2,
+                      border: "none",
+                      borderRadius: "var(--radius-pill)",
+                      background: "transparent",
+                      cursor: saving ? "default" : "pointer",
+                      display: "inline-flex",
+                      opacity: active ? 1 : 0.6,
+                      boxShadow: active
+                        ? "0 0 0 2px var(--tomato-500)"
+                        : "0 0 0 1px var(--border-faint)",
+                      transition:
+                        "opacity var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out)",
+                    }}
                   >
-                    {s}
+                    <StoreLogo name={s} logo={storeLogos?.[s]} size={40} />
                   </button>
                 );
               })}

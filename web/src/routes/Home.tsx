@@ -605,6 +605,7 @@ export function Home() {
             : { text: "", quantity: 1, category: "misc", stores: [] }
         }
         availableStores={stores}
+        storeLogos={household?.storeLogos}
         saving={sheetSaving}
         error={sheetError}
         onClose={() => setEditing(null)}
