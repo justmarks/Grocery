@@ -1,16 +1,17 @@
-// Home — plan + shop modes share the list, sectioning, and toast
-// machinery; they differ in chrome (composer vs end-trip bar) and
-// per-row trailing slot (edit/delete pencil-trash vs nothing). The
-// sticky top region (header + mode toggle + store filter) scrolls
-// as one block so the controls stay reachable while a long list
-// scrolls underneath.
+// Home — a single list view (the old "shop" layout): unchecked
+// items grouped by aisle (store-walk order), a collapsible Checked
+// section for review, and an End-trip bar. Adding happens through a
+// drawer that drops from the sticky top (the "Add item" button);
+// every row carries edit/delete so there's no separate planning
+// mode. The drawer is toggled by a floating action button pinned
+// above the End-trip bar.
 //
-// Both modes group strictly by aisle (store-walk order). The app
-// opens in Shop mode by default — the common case is "I'm at the
-// store, show me what to buy."
+// The sticky top region (header + store filter) scrolls as one
+// block so the controls stay reachable while a long list scrolls
+// underneath.
 //
 // State that survives reloads (in localStorage):
-//   grocery.shop.store — "all" | <store name> (shop-mode filter)
+//   grocery.shop.store — "all" | <store name> (store filter)
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -34,10 +35,8 @@ import {
   Icon,
   IconButton,
   Input,
-  ModeToggle,
   StoreFilter,
   Toast,
-  type Mode,
 } from "../components/ui";
 import {
   EditItemSheet,
@@ -76,9 +75,9 @@ export function Home() {
   );
   const { catalog } = useCatalog(userDoc?.householdId ?? null);
 
-  // Opens in Shop mode — the common case is shopping, not editing.
-  const [mode, setMode] = useState<Mode>("shop");
   const [storeFilter, setStoreFilter] = useState<string>(readStoreFilter);
+  // Top add-drawer — closed by default; the list is the main event.
+  const [addOpen, setAddOpen] = useState(false);
   const [draft, setDraft] = useState("");
   const [editing, setEditing] = useState<ItemWithId | null>(null);
   const [sheetError, setSheetError] = useState<string | null>(null);
@@ -141,19 +140,14 @@ export function Home() {
     [items],
   );
 
-  // Apply the shop-mode store filter before grouping so the section
-  // counts only reflect what the user can actually see right now.
+  // Apply the store filter before grouping so the section counts
+  // only reflect what the user can actually see right now.
   const shopVisibleItems = useMemo(() => {
     if (storeFilter === "all") return groupableItems;
     return groupableItems.filter((it) => it.stores.includes(storeFilter));
   }, [groupableItems, storeFilter]);
 
-  const aisleGroupsPlan = useMemo(
-    () => groupByAisle(groupableItems, categoryOrder),
-    [groupableItems, categoryOrder],
-  );
-
-  // Shop mode separates "still to get" from "already in the cart".
+  // The list separates "still to get" from "already in the cart".
   // Unchecked items group by aisle at the top; checked items collect
   // in a single collapsible "Checked" section at the bottom so the
   // shopper can review everything they ticked off (and undo a
@@ -314,7 +308,7 @@ export function Home() {
   const shopIsEmpty = !itemsLoading && shopVisibleItems.length === 0;
   const allChecked = shopUnchecked.length === 0 && shopChecked.length > 0;
 
-  const planTrailing = (it: RenderableItem) => (
+  const rowTrailing = (it: RenderableItem) => (
     <div style={{ display: "flex" }}>
       <IconButton
         icon="pencil"
@@ -347,7 +341,8 @@ export function Home() {
           "calc(var(--space-20) + var(--space-4) + env(safe-area-inset-bottom))",
       }}
     >
-      {/* Sticky top assembly — header + mode toggle + store filter. */}
+      {/* Sticky top assembly — header + store filter, plus the
+          add-item drawer that drops from beneath them (FAB-toggled). */}
       <div
         style={{
           position: "sticky",
@@ -387,20 +382,7 @@ export function Home() {
           </div>
         </header>
 
-        <div
-          style={{
-            maxWidth: 560,
-            margin: "0 auto",
-            padding: "0 var(--space-5) var(--space-3)",
-            display: "flex",
-            alignItems: "center",
-            gap: "var(--space-3)",
-          }}
-        >
-          <ModeToggle value={mode} onChange={setMode} />
-        </div>
-
-        {mode === "shop" && stores.length > 0 && (
+        {stores.length > 0 && (
           <div
             style={{
               maxWidth: 560,
@@ -416,108 +398,42 @@ export function Home() {
             />
           </div>
         )}
-      </div>
 
-      <main
-        style={{
-          maxWidth: 560,
-          margin: "0 auto",
-          padding: "var(--space-4) var(--space-5)",
-        }}
-      >
-        {/* ---------- Plan mode ---------- */}
-        {mode === "plan" &&
-          (isEmpty ? (
-            <EmptyState icon="list-checks" title="Your list is empty.">
-              Add items as you think of them, or import a meal plan from
-              RecipeTracker.
-            </EmptyState>
-          ) : (
-            <ListByAisle
-              groups={aisleGroupsPlan}
-              collapsed={collapsedAisles}
-              onToggleCollapse={toggleCollapsedAisle}
-              onItemToggle={handleToggle}
-              renderTrailing={planTrailing}
-            />
-          ))}
-
-        {/* ---------- Shop mode ---------- */}
-        {mode === "shop" &&
-          (isEmpty ? (
-            <EmptyState icon="shopping-cart" title="Nothing on the list yet.">
-              Switch to Plan to add items, then come back here to shop.
-            </EmptyState>
-          ) : shopIsEmpty ? (
-            <EmptyState
-              icon="store"
-              title={
-                storeFilter === "all"
-                  ? "Nothing to shop right now."
-                  : `Nothing at ${storeFilter}.`
-              }
-            >
-              {storeFilter === "all"
-                ? "Switch to Plan to add items."
-                : "Pick a different store or switch to All stores."}
-            </EmptyState>
-          ) : (
-            <>
-              {allChecked ? (
-                <EmptyState icon="check" title="All checked off! Nice work.">
-                  Review what you got below, or tap <strong>End trip</strong> to
-                  clear the list.
-                </EmptyState>
-              ) : (
-                <ListByAisle
-                  groups={aisleGroupsShop}
-                  collapsed={collapsedAisles}
-                  onToggleCollapse={toggleCollapsedAisle}
-                  onItemToggle={handleToggle}
-                  renderTrailing={null}
-                />
-              )}
-
-              {shopChecked.length > 0 && (
-                <CheckedSection
-                  items={shopChecked}
-                  // Auto-expand when there's nothing left to get, so the
-                  // review is immediate; otherwise the shopper opts in.
-                  open={checkedOpen || allChecked}
-                  onToggleOpen={() => setCheckedOpen((o) => !o)}
-                  onUncheck={handleToggle}
-                />
-              )}
-            </>
-          ))}
-      </main>
-
-      {/* ---------- Sticky bottom ---------- */}
-      {mode === "plan" && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: "var(--paper-100)",
-            borderTop: "1px solid var(--border-faint)",
-            padding:
-              "var(--space-3) var(--space-5) calc(var(--space-3) + env(safe-area-inset-bottom))",
-            display: "flex",
-            justifyContent: "center",
-            zIndex: 20,
-          }}
-        >
+        {addOpen && (
           <div
             style={{
-              width: "100%",
               maxWidth: 560,
+              margin: "0 auto",
+              padding: "0 var(--space-5) var(--space-4)",
               display: "flex",
               flexDirection: "column",
               gap: "var(--space-2)",
             }}
           >
+            <div style={{ display: "flex", gap: "var(--space-2)" }}>
+              <Input
+                autoFocus
+                placeholder="Add an item…"
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    handleQuickAdd();
+                  }
+                  if (e.key === "Escape") setAddOpen(false);
+                }}
+                aria-label="New item text"
+              />
+              <Button
+                icon="plus"
+                onClick={() => handleQuickAdd()}
+                disabled={!draft.trim() || !household || !user}
+                aria-label="Add item"
+              >
+                Add
+              </Button>
+            </div>
             {suggestions.length > 0 && (
               <div
                 style={{
@@ -535,61 +451,122 @@ export function Home() {
                 ))}
               </div>
             )}
-            <div style={{ display: "flex", gap: "var(--space-2)" }}>
-              <Input
-                placeholder="Add an item…"
-                value={draft}
-                onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    handleQuickAdd();
-                  }
-                }}
-                aria-label="New item text"
-              />
-              <Button
-                icon="plus"
-                onClick={() => handleQuickAdd()}
-                disabled={!draft.trim() || !household || !user}
-                aria-label="Add item"
-              >
-                Add
-              </Button>
-            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {mode === "shop" && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            background: "var(--paper-100)",
-            borderTop: "1px solid var(--border-faint)",
-            padding:
-              "var(--space-3) var(--space-5) calc(var(--space-3) + env(safe-area-inset-bottom))",
-            display: "flex",
-            justifyContent: "center",
-            zIndex: 20,
-          }}
-        >
-          <div style={{ width: "100%", maxWidth: 560, display: "flex" }}>
-            <Button
-              variant="success"
-              icon={endingTrip ? undefined : "check"}
-              onClick={handleEndTrip}
-              disabled={endingTrip || householdCheckedCount === 0}
-              style={{ flex: 1 }}
-            >
-              {endingTrip ? "Ending…" : "End trip"}
-            </Button>
-          </div>
+      <main
+        style={{
+          maxWidth: 560,
+          margin: "0 auto",
+          padding: "var(--space-4) var(--space-5)",
+        }}
+      >
+        {isEmpty ? (
+          <EmptyState icon="shopping-cart" title="Nothing on the list yet.">
+            Tap <strong>Add item</strong> above, or import a meal plan from
+            RecipeTracker.
+          </EmptyState>
+        ) : shopIsEmpty ? (
+          <EmptyState
+            icon="store"
+            title={
+              storeFilter === "all"
+                ? "Nothing to shop right now."
+                : `Nothing at ${storeFilter}.`
+            }
+          >
+            {storeFilter === "all"
+              ? "Tap Add item above to get started."
+              : "Pick a different store or switch to All stores."}
+          </EmptyState>
+        ) : (
+          <>
+            {allChecked ? (
+              <EmptyState icon="check" title="All checked off! Nice work.">
+                Review what you got below, or tap <strong>End trip</strong> to
+                clear the list.
+              </EmptyState>
+            ) : (
+              <ListByAisle
+                groups={aisleGroupsShop}
+                collapsed={collapsedAisles}
+                onToggleCollapse={toggleCollapsedAisle}
+                onItemToggle={handleToggle}
+                renderTrailing={rowTrailing}
+              />
+            )}
+
+            {shopChecked.length > 0 && (
+              <CheckedSection
+                items={shopChecked}
+                // Auto-expand when there's nothing left to get, so the
+                // review is immediate; otherwise the shopper opts in.
+                open={checkedOpen || allChecked}
+                onToggleOpen={() => setCheckedOpen((o) => !o)}
+                onUncheck={handleToggle}
+                renderTrailing={rowTrailing}
+              />
+            )}
+          </>
+        )}
+      </main>
+
+      {/* FAB — toggles the add-item drawer at the top. Inherits the
+          primary button's hover/active/focus states; sized as a 56px
+          disc and pinned above the End-trip bar, right-aligned to
+          the 560px content column. */}
+      <button
+        type="button"
+        className="gr-btn gr-btn--primary"
+        aria-label={addOpen ? "Close add item" : "Add item"}
+        aria-expanded={addOpen}
+        onClick={() => setAddOpen((o) => !o)}
+        style={{
+          position: "fixed",
+          // 560px column ⇒ its right edge sits at 50vw - 280px.
+          right: "max(var(--space-5), calc(50vw - 280px + var(--space-5)))",
+          bottom: "calc(var(--space-20) + env(safe-area-inset-bottom))",
+          zIndex: 30,
+          width: 56,
+          height: 56,
+          minHeight: 56,
+          padding: 0,
+          borderRadius: "var(--radius-pill)",
+          boxShadow: "var(--shadow-lg)",
+        }}
+      >
+        <Icon name={addOpen ? "x" : "plus"} size={24} />
+      </button>
+
+      {/* ---------- Sticky bottom ---------- */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: "var(--paper-100)",
+          borderTop: "1px solid var(--border-faint)",
+          padding:
+            "var(--space-3) var(--space-5) calc(var(--space-3) + env(safe-area-inset-bottom))",
+          display: "flex",
+          justifyContent: "center",
+          zIndex: 20,
+        }}
+      >
+        <div style={{ width: "100%", maxWidth: 560, display: "flex" }}>
+          <Button
+            variant="success"
+            icon={endingTrip ? undefined : "check"}
+            onClick={handleEndTrip}
+            disabled={endingTrip || householdCheckedCount === 0}
+            style={{ flex: 1 }}
+          >
+            {endingTrip ? "Ending…" : "End trip"}
+          </Button>
         </div>
-      )}
+      </div>
 
       <EditItemSheet
         open={editing != null}
@@ -685,11 +662,13 @@ function CheckedSection({
   open,
   onToggleOpen,
   onUncheck,
+  renderTrailing,
 }: {
   items: RenderableItem[];
   open: boolean;
   onToggleOpen: () => void;
   onUncheck: (item: ItemWithId) => void;
+  renderTrailing?: (item: RenderableItem) => React.ReactNode;
 }) {
   return (
     <div style={{ marginTop: "var(--space-8)" }}>
@@ -732,6 +711,7 @@ function CheckedSection({
               category={it.category as GroceryCategory}
               checked
               onToggle={() => onUncheck(it)}
+              trailing={renderTrailing ? renderTrailing(it) : undefined}
             />
           ))}
         </div>

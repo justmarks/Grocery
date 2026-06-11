@@ -1,7 +1,6 @@
-// Bottom-sheet editor for a single item. Shared between "edit
-// existing" (pencil on a row) and any future "add detailed" flow.
-// Read-mode (shopping) uses the simpler row checkoff; this sheet is
-// plan-mode only.
+// Bottom-sheet editor for a single item, opened from the pencil on
+// any row. Quick adds happen in the top drawer on Home; this sheet
+// covers the detailed fields (quantity, aisle, stores).
 
 import { useEffect, useState } from "react";
 import {
