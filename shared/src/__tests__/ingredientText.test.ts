@@ -51,10 +51,12 @@ describe("stripPrepDirections", () => {
     expect(stripPrepDirections("Butter (softened)")).toBe("Butter");
   });
 
-  it("drops leading prep words and re-capitalizes", () => {
-    expect(stripPrepDirections("Minced garlic")).toBe("Garlic");
-    expect(stripPrepDirections("finely chopped parsley")).toBe("parsley");
-    expect(stripPrepDirections("Finely chopped parsley")).toBe("Parsley");
+  it("keeps leading prep/form words — often part of the product name", () => {
+    expect(stripPrepDirections("Minced garlic")).toBe("Minced garlic");
+    expect(stripPrepDirections("Crushed tomatoes")).toBe("Crushed tomatoes");
+    expect(stripPrepDirections("Shredded cheese, divided")).toBe(
+      "Shredded cheese",
+    );
   });
 
   it("leaves ordinary lines untouched", () => {

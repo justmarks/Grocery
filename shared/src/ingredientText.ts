@@ -4,10 +4,12 @@
 // shopping list — you buy garlic, not minced garlic.
 //
 // Deliberately conservative: only words on the curated list below are
-// ever removed, and only when they form a pure prep phrase (a trailing
-// comma/dash segment, a parenthetical, or a leading run of words).
-// Anything ambiguous passes through untouched, and a line that is
-// nothing but prep words is returned as-is rather than emptied.
+// ever removed, and only when they form a pure prep phrase in a
+// trailing comma/dash segment or a parenthetical. Leading words are
+// never touched — "Crushed tomatoes" and "Shredded cheese" are
+// products you buy, not directions. Anything ambiguous passes through
+// untouched, and a line that is nothing but prep words is returned
+// as-is rather than emptied.
 
 /** Words that are (almost) always a prep direction, never the item. */
 const PREP_WORDS = new Set([
@@ -88,18 +90,18 @@ export function isPrepPhrase(phrase: string): boolean {
 }
 
 /**
- * Remove prep directions from an ingredient line:
+ * Remove trailing prep directions from an ingredient line:
  *
  *   "Garlic, minced"                    → "Garlic"
  *   "Carrots, peeled and diced"         → "Carrots"
  *   "Onion (diced)"                     → "Onion"
- *   "finely chopped parsley"            → "Parsley" (capitalized like
- *                                          the original line)
  *   "Yellow onions (3 medium), chopped" → "Yellow onions (3 medium)"
  *
- * Quantity parentheticals and ordinary descriptors survive. If
- * stripping would leave nothing meaningful, the original text comes
- * back unchanged.
+ * Leading words stay — "Minced garlic" and "Crushed tomatoes" pass
+ * through unchanged, since a leading form word is often part of the
+ * product name. Quantity parentheticals and ordinary descriptors
+ * survive. If stripping would leave nothing meaningful, the original
+ * text comes back unchanged.
  */
 export function stripPrepDirections(text: string): string {
   const original = text.trim();
@@ -117,27 +119,9 @@ export function stripPrepDirections(text: string): string {
   const kept = segments.filter((s) => s.trim() && !isPrepPhrase(s));
   if (kept.length > 0) out = kept.join(", ");
 
-  // 3. A leading run of prep words ("minced garlic"), including
-  //    adverb + prep pairs ("finely chopped parsley"). Never consumes
-  //    the last word.
-  const words = out.trim().split(/\s+/);
-  let start = 0;
-  while (start < words.length - 1) {
-    const w = tokenWord(words[start]);
-    const next = tokenWord(words[start + 1]);
-    if (PREP_WORDS.has(w)) start += 1;
-    else if (PREP_ADVERBS.has(w) && PREP_WORDS.has(next)) start += 1;
-    else break;
-  }
-  let result = words.slice(start).join(" ").replace(/^[\s,;-]+|[\s,;-]+$/g, "");
+  const result = out.trim().replace(/^[\s,;-]+|[\s,;-]+$/g, "");
 
   // Nothing useful left (or the line was pure prep) → leave it alone.
-  if (!result || isPrepPhrase(result)) return original;
-
-  // Keep the line's original capitalization style after dropping a
-  // leading word: "Minced garlic" → "Garlic".
-  if (/^[A-Z]/.test(original) && /^[a-z]/.test(result)) {
-    result = result[0].toUpperCase() + result.slice(1);
-  }
+  if (!result) return original;
   return result;
 }
