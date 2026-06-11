@@ -23,6 +23,7 @@ import {
   decodeMealPlanPayload,
   findExactCatalogMatch,
   GROCERY_CATEGORIES,
+  stripPrepDirections,
   type DecodeResult,
   type GroceryCategory,
 } from "@grocery/shared";
@@ -76,13 +77,18 @@ export function Import() {
   // catalog entries where we already know the user's defaults. Runs
   // once per fresh payload; the user's edits aren't overwritten by
   // a later catalog snapshot.
+  //
+  // Prep directions ("Garlic, minced") are stripped here — at seed
+  // time — so the preview, the catalog match, and the committed item
+  // all see the same shopper-friendly text.
   useEffect(() => {
     if (rowsSeeded || !decoded || !decoded.ok) return;
     const seeded: Row[] = decoded.payload.items.map((item, i) => {
-      const known = findExactCatalogMatch(catalog, item.text);
+      const text = stripPrepDirections(item.text);
+      const known = findExactCatalogMatch(catalog, text);
       return {
         index: i,
-        text: item.text,
+        text,
         category: (item.category as GroceryCategory),
         stores: known?.defaultStores ?? [],
       };
