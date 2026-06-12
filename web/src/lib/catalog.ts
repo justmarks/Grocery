@@ -46,6 +46,7 @@ export type CatalogUpsertInput = {
   category: GroceryCategory;
   stores: string[];
   quantity: number;
+  preferredUnit?: string;
 };
 
 /**
@@ -68,7 +69,7 @@ export async function upsertCatalogEntry(
   const searchTokens = catalogSearchTokens(text);
   const timesUsed = (prior?.timesUsed ?? 0) + 1;
 
-  await setDoc(ref, {
+  const entry: Record<string, unknown> = {
     text,
     textLower,
     searchTokens,
@@ -77,7 +78,9 @@ export async function upsertCatalogEntry(
     defaultQuantity: input.quantity,
     timesUsed,
     lastUsedAt: serverTimestamp(),
-  });
+  };
+  if (input.preferredUnit !== undefined) entry.preferredUnit = input.preferredUnit;
+  await setDoc(ref, entry);
 }
 
 export type UseCatalogResult = {
