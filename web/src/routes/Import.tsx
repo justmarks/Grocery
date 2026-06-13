@@ -20,9 +20,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import {
+  aggregateAndNormalizeItems,
   decodeMealPlanPayload,
+  extractPreferredUnit,
   findExactCatalogMatch,
   GROCERY_CATEGORIES,
+  ingredientSlug,
   stripPrepDirections,
   type DecodeResult,
   type GroceryCategory,
@@ -40,13 +43,17 @@ import { useAuth } from "../lib/useAuth";
 import { useUserDoc } from "../lib/userDoc";
 import { useHousehold } from "../lib/household";
 import { addItemsBatch } from "../lib/items";
-import { useCatalog } from "../lib/catalog";
+import { upsertCatalogEntry, useCatalog } from "../lib/catalog";
 
 export const PENDING_IMPORT_KEY = "grocery.pendingImportUrl";
 
 type Row = {
   index: number;
   text: string;
+  /** Auto-normalized text before any user edit — used to learn preferred units. */
+  normalizedText: string;
+  /** Bare ingredient name (e.g. "Butter") used for catalog preferredUnit upserts. */
+  ingredientName: string;
   category: GroceryCategory;
   stores: string[];
 };
@@ -73,23 +80,30 @@ export function Import() {
   const [committed, setCommitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Seed local rows from the decoded payload, prefilling stores from
-  // catalog entries where we already know the user's defaults. Runs
-  // once per fresh payload; the user's edits aren't overwritten by
-  // a later catalog snapshot.
+  // Seed rows from the decoded payload. Runs once per fresh payload;
+  // the user's edits aren't overwritten by a later catalog snapshot.
   //
-  // Prep directions ("Garlic, minced") are stripped here — at seed
-  // time — so the preview, the catalog match, and the committed item
-  // all see the same shopper-friendly text.
+  // 1. Strip prep directions ("Garlic, minced" → "Garlic").
+  // 2. Aggregate duplicates and normalize amounts ("18 tbsp" → "2¼ sticks").
+  // 3. Prefill stores from catalog defaults where known.
   useEffect(() => {
     if (rowsSeeded || !decoded || !decoded.ok) return;
-    const seeded: Row[] = decoded.payload.items.map((item, i) => {
-      const text = stripPrepDirections(item.text);
-      const known = findExactCatalogMatch(catalog, text);
+    const prepStripped = decoded.payload.items.map((item) => ({
+      text: stripPrepDirections(item.text),
+      category: item.category as GroceryCategory,
+    }));
+    const aggregated = aggregateAndNormalizeItems(
+      prepStripped,
+      (slug) => catalog.find((c) => ingredientSlug(c.text) === slug)?.preferredUnit,
+    );
+    const seeded: Row[] = aggregated.map((item, i) => {
+      const known = findExactCatalogMatch(catalog, item.ingredientName);
       return {
         index: i,
-        text,
-        category: (item.category as GroceryCategory),
+        text: item.text,
+        normalizedText: item.normalizedText,
+        ingredientName: item.ingredientName,
+        category: item.category,
         stores: known?.defaultStores ?? [],
       };
     });
@@ -164,6 +178,10 @@ export function Import() {
     return a.index - b.index;
   });
 
+  function updateRowText(rowIdx: number, text: string) {
+    setRows((prev) => prev.map((r) => (r.index === rowIdx ? { ...r, text } : r)));
+  }
+
   function applyStoreToAll(store: string) {
     setRows((prev) => prev.map((r) => ({ ...r, stores: [store] })));
   }
@@ -212,6 +230,20 @@ export function Import() {
           sourceRef: { mealPlanId: decoded.payload.mealPlanId },
         },
       );
+      // Learn preferred units from whatever the user committed. Upsert under
+      // the bare ingredient name so future imports pick up the preference.
+      for (const row of rows) {
+        const pUnit = extractPreferredUnit(row.text);
+        if (pUnit) {
+          upsertCatalogEntry(household.id, {
+            text: row.ingredientName,
+            category: row.category,
+            stores: row.stores,
+            quantity: 1,
+            preferredUnit: pUnit,
+          }).catch(() => {});
+        }
+      }
       setCommitted(true);
       // Stay on the page for a beat so the toast reads; then go home.
       window.setTimeout(() => {
@@ -342,16 +374,26 @@ export function Import() {
                 onChange={(c) => changeRowCategory(r.index, c)}
                 disabled={busy}
               />
-              <span
+              <input
+                type="text"
+                value={r.text}
+                onChange={(e) => updateRowText(r.index, e.target.value)}
+                disabled={busy}
+                aria-label={`Edit ${r.ingredientName}`}
                 style={{
                   flex: 1,
                   fontSize: "var(--text-md)",
                   color: "var(--ink-900)",
+                  fontFamily: "var(--font-sans)",
+                  background: "transparent",
+                  border: "none",
+                  borderBottom: "1px solid var(--border-faint)",
+                  outline: "none",
                   paddingTop: "var(--space-1)",
+                  paddingBottom: "2px",
+                  minWidth: 0,
                 }}
-              >
-                {r.text}
-              </span>
+              />
               <IconButton
                 icon="trash"
                 variant="danger"

@@ -98,6 +98,8 @@ export const CatalogEntrySchema = z.object({
   defaultQuantity: z.number().int().min(1).max(999),
   timesUsed: z.number().int().min(0),
   lastUsedAt: z.unknown(),
+  /** User's preferred display unit for this ingredient (e.g. "sticks", "cups"). */
+  preferredUnit: z.string().optional(),
 });
 export type CatalogEntry = z.infer<typeof CatalogEntrySchema>;
 
