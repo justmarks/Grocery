@@ -93,7 +93,7 @@
 .gr-input {
   width: 100%;
   font-family: var(--font-sans);
-  font-size: var(--text-sm);
+  font-size: var(--text-base); /* 16px min prevents iOS Safari zoom on focus */
   color: var(--ink-900);
   background: #fff;
   border: 1px solid var(--paper-400);
@@ -119,7 +119,7 @@
 .gr-select {
   width: 100%;
   font-family: var(--font-sans);
-  font-size: var(--text-sm);
+  font-size: var(--text-base); /* 16px min prevents iOS Safari zoom on focus */
   color: var(--ink-900);
   background: #fff;
   border: 1px solid var(--paper-400);
