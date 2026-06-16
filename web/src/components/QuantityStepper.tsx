@@ -31,7 +31,6 @@ export function QuantityStepper({
         gap: "var(--space-1)",
         border: "1px solid var(--paper-400)",
         borderRadius: "var(--radius-md)",
-        padding: "var(--space-1)",
         background: "var(--bg-card)",
       }}
     >
