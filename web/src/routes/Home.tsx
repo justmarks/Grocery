@@ -197,7 +197,7 @@ export function Home() {
       await addItem(household.id, user.uid, {
         text,
         category: remembered?.defaultCategory,
-        stores: remembered?.defaultStores,
+        stores: remembered?.defaultStores ?? (storeFilter !== "all" ? [storeFilter] : undefined),
         quantity: remembered?.defaultQuantity,
       });
       trackEvent("item_added");
