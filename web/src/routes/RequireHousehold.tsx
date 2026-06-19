@@ -27,7 +27,7 @@ function CenteredBrand() {
         background: "var(--paper-100)",
       }}
     >
-      <Brand variant="mark" />
+      <Brand variant="stacked" />
     </div>
   );
 }
@@ -62,7 +62,7 @@ export function RequireHousehold() {
           fontFamily: "var(--font-sans)",
         }}
       >
-        <Brand variant="mark" />
+        <Brand variant="stacked" />
         <p style={{ color: "var(--ink-500)", maxWidth: "32ch", margin: 0 }}>
           Couldn't reach your list just now. Check your connection and try
           again.
