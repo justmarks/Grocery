@@ -45,7 +45,7 @@ function RouteFallback() {
         background: "var(--paper-100)",
       }}
     >
-      <Brand variant="mark" />
+      <Brand variant="stacked" />
     </div>
   );
 }
