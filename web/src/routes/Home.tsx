@@ -144,7 +144,9 @@ export function Home() {
   // only reflect what the user can actually see right now.
   const shopVisibleItems = useMemo(() => {
     if (storeFilter === "all") return groupableItems;
-    return groupableItems.filter((it) => it.stores.includes(storeFilter));
+    return groupableItems.filter(
+      (it) => !it.stores?.length || it.stores.includes(storeFilter),
+    );
   }, [groupableItems, storeFilter]);
 
   // The list separates "still to get" from "already in the cart".
