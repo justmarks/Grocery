@@ -35,18 +35,18 @@ The 11 categories each own a color family the shopper learns to scan for. The de
 | Slug | Family |
 |---|---|
 | `produce` | olive |
-| `meats` | tomato |
+| `meats` (Meats & Fish) | tomato |
 | `dairy` | sky |
 | `cheeses` | saffron |
 | `baking-and-dry-goods` | cocoa |
-| `bread` | plum |
-| `chips-and-crackers` | berry |
+| `canned-goods` | berry |
+| `bread-and-crackers` (Bread, Chips & Crackers) | plum |
 | `beverages` | sage |
 | `paper-goods` | slate |
 | `freezer` | frost *(Grocery-only)* |
 | `misc` | neutral paper |
 
-The design system's `CATEGORIES` array in `components/grocery/categories.js` is in **canonical store-walk order** — produce → meats → dairy → cheeses → baking → bread → chips & crackers → beverages → paper → freezer → misc. This is the seeded default value for `households/{id}.categoryOrder` on creation.
+The design system's `CATEGORIES` array in `components/grocery/categories.js` is in **canonical store-walk order** — produce → meats → dairy → cheeses → baking → canned goods → bread/chips/crackers → beverages → paper → freezer → misc. This is the seeded default value for `households/{id}.categoryOrder` on creation.
 
 ### How the design system gets consumed
 
@@ -191,7 +191,7 @@ households/{householdId}
   stores            ["Trader Joe's", "Costco", "Target", "QFC"]
   categoryOrder     // canonical store-walk order from design-system CATEGORIES, seeded on create:
                     // ["produce","meats","dairy","cheeses",
-                    //  "baking-and-dry-goods","bread","chips-and-crackers",
+                    //  "baking-and-dry-goods","canned-goods","bread-and-crackers",
                     //  "beverages","paper-goods","freezer","misc"]
   createdAt, updatedAt
 

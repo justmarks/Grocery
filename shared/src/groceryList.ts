@@ -17,7 +17,7 @@ import { z } from "zod";
  *
  * Grocery started with RecipeTracker's ten categories + `freezer`, then
  * diverged: `fruits` + `vegetables` merged into `produce`, and
- * `bread-and-crackers` split into `bread` + `chips-and-crackers`.
+ * `canned-goods` was added.
  * Documents written before that change still carry the old slugs —
  * run every stored / imported category through `normalizeCategory`
  * (and household orders through `normalizeCategoryOrder`) on read.
@@ -35,8 +35,8 @@ export const GROCERY_CATEGORIES = [
   "dairy",
   "cheeses",
   "baking-and-dry-goods",
-  "bread",
-  "chips-and-crackers",
+  "canned-goods",
+  "bread-and-crackers",
   "beverages",
   "paper-goods",
   "freezer",
@@ -53,7 +53,6 @@ export type GroceryCategory = (typeof GROCERY_CATEGORIES)[number];
 export const LEGACY_CATEGORY_ALIASES = {
   "fruits": "produce",
   "vegetables": "produce",
-  "bread-and-crackers": "bread",
 } as const satisfies Record<string, GroceryCategory>;
 
 export type LegacyGroceryCategory = keyof typeof LEGACY_CATEGORY_ALIASES;
@@ -114,8 +113,8 @@ export function normalizeCategoryOrder(
 
 /**
  * Categories accepted on a RecipeTracker meal-plan import. RecipeTracker
- * still emits its original ten (including the legacy `fruits`,
- * `vegetables`, `bread-and-crackers`); current slugs are accepted too
+ * still emits its original ten (including the legacy `fruits` and
+ * `vegetables`); current slugs are accepted too
  * so either side can move first. `freezer` is intentionally excluded —
  * the upstream meal-plan generator doesn't know about it. Parsed values
  * are normalized to current slugs.
@@ -129,9 +128,8 @@ export const RecipeTrackerCategorySchema = z
     "dairy",
     "cheeses",
     "baking-and-dry-goods",
+    "canned-goods",
     "bread-and-crackers",
-    "bread",
-    "chips-and-crackers",
     "beverages",
     "paper-goods",
     "misc",
@@ -147,12 +145,12 @@ export const GroceryCategorySchema = z.enum(GROCERY_CATEGORIES);
  */
 export const GROCERY_CATEGORY_LABELS: Record<GroceryCategory, string> = {
   "produce": "Produce",
-  "meats": "Meats",
+  "meats": "Meats & Fish",
   "dairy": "Dairy",
   "cheeses": "Cheeses",
   "baking-and-dry-goods": "Baking & Dry Goods",
-  "bread": "Bread",
-  "chips-and-crackers": "Chips & Crackers",
+  "canned-goods": "Canned Goods",
+  "bread-and-crackers": "Bread, Chips & Crackers",
   "beverages": "Beverages",
   "paper-goods": "Paper Goods",
   "freezer": "Freezer",

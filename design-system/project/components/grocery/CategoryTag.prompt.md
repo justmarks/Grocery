@@ -6,4 +6,4 @@ A flat color chip marking an item's aisle category. Each of the eleven categorie
 <CategoryTag category="meats" dot={false}>Beef</CategoryTag>
 ```
 
-`category` resolves both the label and the color from the `--cat-*` tokens. The leading dot uses the mid swatch tone; hide it with `dot={false}`. Valid slugs: produce, meats, dairy, cheeses, baking-and-dry-goods, bread, chips-and-crackers, beverages, paper-goods, freezer, misc.
+`category` resolves both the label and the color from the `--cat-*` tokens. The leading dot uses the mid swatch tone; hide it with `dot={false}`. Valid slugs: produce, meats, dairy, cheeses, baking-and-dry-goods, canned-goods, bread-and-crackers, beverages, paper-goods, freezer, misc.

@@ -16,7 +16,7 @@
   --cat-produce-mid: var(--olive-300);
   --cat-produce-fg: var(--olive-700);
 
-  /* meats → tomato */
+  /* meats (Meats & Fish) → tomato */
   --cat-meats-bg: var(--tomato-50);
   --cat-meats-mid: var(--tomato-300);
   --cat-meats-fg: var(--tomato-700);
@@ -36,15 +36,15 @@
   --cat-baking-mid: var(--cocoa-300);
   --cat-baking-fg: var(--cocoa-700);
 
-  /* bread → plum */
+  /* canned-goods → berry */
+  --cat-canned-bg: var(--berry-100);
+  --cat-canned-mid: var(--berry-300);
+  --cat-canned-fg: var(--berry-700);
+
+  /* bread-and-crackers (Bread, Chips & Crackers) → plum */
   --cat-bread-bg: var(--plum-100);
   --cat-bread-mid: var(--plum-300);
   --cat-bread-fg: var(--plum-700);
-
-  /* chips-and-crackers → berry */
-  --cat-chips-bg: var(--berry-100);
-  --cat-chips-mid: var(--berry-300);
-  --cat-chips-fg: var(--berry-700);
 
   /* beverages → sage */
   --cat-beverages-bg: var(--sage-100);

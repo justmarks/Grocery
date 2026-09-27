@@ -15,12 +15,12 @@ type CategoryEntry = {
 
 export const CATEGORIES: readonly CategoryEntry[] = [
   { slug: "produce", label: "Produce", token: "produce", icon: "sparkles" },
-  { slug: "meats", label: "Meats", token: "meats", icon: "sparkles" },
+  { slug: "meats", label: "Meats & Fish", token: "meats", icon: "sparkles" },
   { slug: "dairy", label: "Dairy", token: "dairy", icon: "sparkles" },
   { slug: "cheeses", label: "Cheeses", token: "cheeses", icon: "sparkles" },
   { slug: "baking-and-dry-goods", label: "Baking & Dry Goods", token: "baking", icon: "sparkles" },
-  { slug: "bread", label: "Bread", token: "bread", icon: "sparkles" },
-  { slug: "chips-and-crackers", label: "Chips & Crackers", token: "chips", icon: "sparkles" },
+  { slug: "canned-goods", label: "Canned Goods", token: "canned", icon: "sparkles" },
+  { slug: "bread-and-crackers", label: "Bread, Chips & Crackers", token: "bread", icon: "sparkles" },
   { slug: "beverages", label: "Beverages", token: "beverages", icon: "sparkles" },
   { slug: "paper-goods", label: "Paper Goods", token: "paper", icon: "sparkles" },
   { slug: "freezer", label: "Freezer", token: "freezer", icon: "snowflake" },

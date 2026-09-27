@@ -13,7 +13,6 @@ describe("normalizeCategory", () => {
   it("maps legacy slugs", () => {
     expect(normalizeCategory("fruits")).toBe("produce");
     expect(normalizeCategory("vegetables")).toBe("produce");
-    expect(normalizeCategory("bread-and-crackers")).toBe("bread");
   });
 
   it("falls back to misc for unknown values", () => {
@@ -41,7 +40,7 @@ describe("normalizeCategoryOrder", () => {
     ];
     expect(normalizeCategoryOrder(custom)).toEqual([
       "dairy", "produce", "meats", "cheeses",
-      "bread", "chips-and-crackers", "baking-and-dry-goods", "misc",
+      "bread-and-crackers", "baking-and-dry-goods", "canned-goods", "misc",
       "beverages", "paper-goods", "freezer",
     ]);
   });

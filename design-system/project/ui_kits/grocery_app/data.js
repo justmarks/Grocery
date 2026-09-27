@@ -26,7 +26,7 @@ const ITEMS = [
   { id: "i9", text: "Greek yogurt", qty: 1, category: "dairy", stores: ["Trader Joe's"], checked: true },
   { id: "i10", text: "Sharp cheddar", qty: 1, category: "cheeses", stores: ["Trader Joe's"], checked: false },
   { id: "i11", text: "All-purpose flour", qty: 1, category: "baking-and-dry-goods", stores: ["Costco"], checked: false },
-  { id: "i12", text: "Sourdough loaf", qty: 1, category: "bread", stores: ["Trader Joe's"], checked: false },
+  { id: "i12", text: "Sourdough loaf", qty: 1, category: "bread-and-crackers", stores: ["Trader Joe's"], checked: false },
   { id: "i13", text: "Sparkling water", qty: 12, category: "beverages", stores: ["Costco"], checked: false },
   { id: "i14", text: "Paper towels", qty: 1, category: "paper-goods", stores: ["Costco"], checked: false },
   { id: "i15", text: "Frozen peas", qty: 2, category: "freezer", stores: ["Costco"], checked: false },
@@ -39,7 +39,7 @@ const MEMORY = [
   { text: "Eggs", category: "dairy", stores: ["Costco", "QFC"] },
   { text: "Avocados", category: "produce", stores: ["Trader Joe's"] },
   { text: "Olive oil", category: "baking-and-dry-goods", stores: ["Costco"] },
-  { text: "Tortillas", category: "bread", stores: ["Trader Joe's"] },
+  { text: "Tortillas", category: "bread-and-crackers", stores: ["Trader Joe's"] },
   { text: "Butter", category: "dairy", stores: ["Costco"] },
   { text: "Spinach", category: "produce", stores: ["Trader Joe's", "QFC"] },
 ];
@@ -47,7 +47,7 @@ const MEMORY = [
 // Canonical store-walk order for aisle grouping.
 const CATEGORY_ORDER = [
   "produce", "meats", "dairy", "cheeses",
-  "baking-and-dry-goods", "bread", "chips-and-crackers", "beverages",
+  "baking-and-dry-goods", "canned-goods", "bread-and-crackers", "beverages",
   "paper-goods", "freezer", "misc",
 ];
 

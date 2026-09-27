@@ -60,7 +60,7 @@ describe("decodeMealPlanPayload", () => {
             { text: "Onions", category: "vegetables" },
             { text: "Limes", category: "fruits" },
             { text: "Sourdough", category: "bread-and-crackers" },
-            { text: "Tortilla chips", category: "chips-and-crackers" },
+            { text: "Black beans", category: "canned-goods" },
           ],
         }),
       ),
@@ -71,8 +71,8 @@ describe("decodeMealPlanPayload", () => {
     expect(result.payload.items.map((i) => i.category)).toEqual([
       "produce",
       "produce",
-      "bread",
-      "chips-and-crackers",
+      "bread-and-crackers",
+      "canned-goods",
     ]);
   });
 
