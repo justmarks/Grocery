@@ -5,7 +5,7 @@ One row on the grocery list — big checkoff, item text, count badge, and store 
   checked={false} onToggle={() => toggle(id)} />
 
 <GroceryItemRow text="Yellow onions (3 medium)" quantity={3}
-  category="vegetables" stores={["QFC"]} checked
+  category="produce" stores={["QFC"]} checked
   onToggle={() => toggle(id)} />
 
 {/* plan mode: trailing edit button */}

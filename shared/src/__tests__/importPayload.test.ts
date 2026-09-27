@@ -52,6 +52,30 @@ describe("decodeMealPlanPayload", () => {
     expect(result.payload.items).toHaveLength(3);
   });
 
+  it("maps RecipeTracker's legacy categories onto current slugs", () => {
+    const wire = base64urlEncode(
+      JSON.stringify(
+        buildPayload({
+          items: [
+            { text: "Onions", category: "vegetables" },
+            { text: "Limes", category: "fruits" },
+            { text: "Sourdough", category: "bread-and-crackers" },
+            { text: "Tortilla chips", category: "chips-and-crackers" },
+          ],
+        }),
+      ),
+    );
+    const result = decodeMealPlanPayload(wire);
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.payload.items.map((i) => i.category)).toEqual([
+      "produce",
+      "produce",
+      "bread",
+      "chips-and-crackers",
+    ]);
+  });
+
   it("flags decode-failed on garbage input", () => {
     const result = decodeMealPlanPayload("!!!not-base64-at-all!!!");
     // Base64 is lenient; some garbage strings decode to bytes that

@@ -31,7 +31,7 @@ const STORES = ["Trader Joe's", "Costco", "Target", "QFC"];
 describe("groupByStore", () => {
   it("emits store groups in the household stores order, skipping empty", () => {
     const items = [
-      item("a", "fruits", ["Costco"]),
+      item("a", "produce", ["Costco"]),
       item("b", "dairy", ["QFC"]),
       item("c", "meats", ["Costco"]),
     ];
@@ -41,7 +41,7 @@ describe("groupByStore", () => {
 
   it("duplicates items across each of their stores", () => {
     const items = [
-      item("lemons", "fruits", ["Trader Joe's", "Costco"]),
+      item("lemons", "produce", ["Trader Joe's", "Costco"]),
       item("milk", "dairy", ["Costco"]),
     ];
     const groups = groupByStore(items, STORES, DEFAULT_CATEGORY_ORDER);
@@ -54,9 +54,9 @@ describe("groupByStore", () => {
   it("sub-sorts within a store group by categoryOrder, then addedAt", () => {
     const items = [
       item("flour", "baking-and-dry-goods", ["Costco"], { addedAtMillis: 1 }),
-      item("apples", "fruits", ["Costco"], { addedAtMillis: 2 }),
+      item("apples", "produce", ["Costco"], { addedAtMillis: 2 }),
       item("yogurt", "dairy", ["Costco"], { addedAtMillis: 3 }),
-      item("pears", "fruits", ["Costco"], { addedAtMillis: 4 }),
+      item("pears", "produce", ["Costco"], { addedAtMillis: 4 }),
     ];
     const [group] = groupByStore(items, STORES, DEFAULT_CATEGORY_ORDER);
     expect(group.items.map((i) => i.id)).toEqual([
@@ -69,8 +69,8 @@ describe("groupByStore", () => {
 
   it("floats checked items to the bottom of each store group", () => {
     const items = [
-      item("a", "fruits", ["Costco"], { addedAtMillis: 1, checked: true }),
-      item("b", "fruits", ["Costco"], { addedAtMillis: 2 }),
+      item("a", "produce", ["Costco"], { addedAtMillis: 1, checked: true }),
+      item("b", "produce", ["Costco"], { addedAtMillis: 2 }),
     ];
     const [group] = groupByStore(items, STORES, DEFAULT_CATEGORY_ORDER);
     expect(group.items.map((i) => i.id)).toEqual(["b", "a"]);
@@ -78,7 +78,7 @@ describe("groupByStore", () => {
 
   it("bucketing items with no stores into a trailing unassigned group", () => {
     const items = [
-      item("lemons", "fruits", ["Costco"]),
+      item("lemons", "produce", ["Costco"]),
       item("orphan", "misc", []),
     ];
     const groups = groupByStore(items, STORES, DEFAULT_CATEGORY_ORDER);
@@ -87,7 +87,7 @@ describe("groupByStore", () => {
 
   it("appends orphan stores (referenced but not in stores[]) after known stores", () => {
     const items = [
-      item("a", "fruits", ["Costco"]),
+      item("a", "produce", ["Costco"]),
       item("b", "meats", ["FoodFanatic"]),
     ];
     const groups = groupByStore(items, ["Costco"], DEFAULT_CATEGORY_ORDER);

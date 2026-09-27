@@ -1,8 +1,7 @@
 /* =============================================================
    Grocery — Per-Aisle Category Tokens
    The grocery list is organized by aisle "section". Each of the
-   eleven GROCERY_CATEGORIES (the ten inherited from RecipeTracker's
-   meal-plan schema + the Grocery-only `freezer`) maps to one tag
+   eleven GROCERY_CATEGORIES maps to one tag
    family so a section header and its item chips share a color the
    shopper learns to scan for.
 
@@ -12,15 +11,10 @@
    ============================================================= */
 
 :root {
-  /* fruits → berry */
-  --cat-fruits-bg: var(--berry-100);
-  --cat-fruits-mid: var(--berry-300);
-  --cat-fruits-fg: var(--berry-700);
-
-  /* vegetables → olive */
-  --cat-vegetables-bg: var(--olive-100);
-  --cat-vegetables-mid: var(--olive-300);
-  --cat-vegetables-fg: var(--olive-700);
+  /* produce → olive */
+  --cat-produce-bg: var(--olive-100);
+  --cat-produce-mid: var(--olive-300);
+  --cat-produce-fg: var(--olive-700);
 
   /* meats → tomato */
   --cat-meats-bg: var(--tomato-50);
@@ -42,10 +36,15 @@
   --cat-baking-mid: var(--cocoa-300);
   --cat-baking-fg: var(--cocoa-700);
 
-  /* bread-and-crackers → plum */
+  /* bread → plum */
   --cat-bread-bg: var(--plum-100);
   --cat-bread-mid: var(--plum-300);
   --cat-bread-fg: var(--plum-700);
+
+  /* chips-and-crackers → berry */
+  --cat-chips-bg: var(--berry-100);
+  --cat-chips-mid: var(--berry-300);
+  --cat-chips-fg: var(--berry-700);
 
   /* beverages → sage */
   --cat-beverages-bg: var(--sage-100);

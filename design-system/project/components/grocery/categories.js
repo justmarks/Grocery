@@ -1,7 +1,5 @@
 /**
- * Grocery aisle categories — the eleven GROCERY_CATEGORIES (ten
- * inherited from RecipeTracker's meal-plan schema, plus the
- * Grocery-only `freezer`). Each maps to a human label, a CSS-var
+ * Grocery aisle categories — the eleven GROCERY_CATEGORIES. Each maps to a human label, a CSS-var
  * token prefix (resolving to --cat-<key>-bg / -mid / -fg), and an
  * icon. Kept in canonical store-walk order: perishables first,
  * pantry + paper last.
@@ -10,13 +8,13 @@
  * and any UI kit screen that renders the list.
  */
 export const CATEGORIES = [
-  { slug: "fruits", label: "Fruits", token: "fruits", icon: "sparkles" },
-  { slug: "vegetables", label: "Vegetables", token: "vegetables", icon: "sparkles" },
+  { slug: "produce", label: "Produce", token: "produce", icon: "sparkles" },
   { slug: "meats", label: "Meats", token: "meats", icon: "sparkles" },
   { slug: "dairy", label: "Dairy", token: "dairy", icon: "sparkles" },
   { slug: "cheeses", label: "Cheeses", token: "cheeses", icon: "sparkles" },
   { slug: "baking-and-dry-goods", label: "Baking & Dry Goods", token: "baking", icon: "sparkles" },
-  { slug: "bread-and-crackers", label: "Bread & Crackers", token: "bread", icon: "sparkles" },
+  { slug: "bread", label: "Bread", token: "bread", icon: "sparkles" },
+  { slug: "chips-and-crackers", label: "Chips & Crackers", token: "chips", icon: "sparkles" },
   { slug: "beverages", label: "Beverages", token: "beverages", icon: "sparkles" },
   { slug: "paper-goods", label: "Paper Goods", token: "paper", icon: "sparkles" },
   { slug: "freezer", label: "Freezer", token: "freezer", icon: "snowflake" },

@@ -22,12 +22,12 @@ function item(
 describe("groupByAisle", () => {
   it("emits groups in categoryOrder order, skipping empty ones", () => {
     const items = [
-      item("a", "fruits", { addedAtMillis: 1 }),
+      item("a", "produce", { addedAtMillis: 1 }),
       item("b", "meats", { addedAtMillis: 2 }),
-      item("c", "fruits", { addedAtMillis: 3 }),
+      item("c", "produce", { addedAtMillis: 3 }),
     ];
     const groups = groupByAisle(items, DEFAULT_CATEGORY_ORDER);
-    expect(groups.map((g) => g.category)).toEqual(["fruits", "meats"]);
+    expect(groups.map((g) => g.category)).toEqual(["produce", "meats"]);
     expect(groups[0].items.map((i) => i.id)).toEqual(["a", "c"]);
     expect(groups[1].items.map((i) => i.id)).toEqual(["b"]);
   });
@@ -44,27 +44,27 @@ describe("groupByAisle", () => {
 
   it("floats checked items to the bottom of a section by default", () => {
     const items = [
-      item("a", "fruits", { addedAtMillis: 1, checked: true }),
-      item("b", "fruits", { addedAtMillis: 2 }),
-      item("c", "fruits", { addedAtMillis: 3, checked: true }),
-      item("d", "fruits", { addedAtMillis: 4 }),
+      item("a", "produce", { addedAtMillis: 1, checked: true }),
+      item("b", "produce", { addedAtMillis: 2 }),
+      item("c", "produce", { addedAtMillis: 3, checked: true }),
+      item("d", "produce", { addedAtMillis: 4 }),
     ];
-    const [group] = groupByAisle(items, ["fruits"]);
+    const [group] = groupByAisle(items, ["produce"]);
     expect(group.items.map((i) => i.id)).toEqual(["b", "d", "a", "c"]);
   });
 
   it("respects checkedFloat: false", () => {
     const items = [
-      item("a", "fruits", { addedAtMillis: 1, checked: true }),
-      item("b", "fruits", { addedAtMillis: 2 }),
+      item("a", "produce", { addedAtMillis: 1, checked: true }),
+      item("b", "produce", { addedAtMillis: 2 }),
     ];
-    const [group] = groupByAisle(items, ["fruits"], { checkedFloat: false });
+    const [group] = groupByAisle(items, ["produce"], { checkedFloat: false });
     expect(group.items.map((i) => i.id)).toEqual(["a", "b"]);
   });
 
   it("buckets unknown categories into misc when the order includes it", () => {
     // Use a typed cast so the test exercises the runtime fallback path.
-    const orphan = item("o", "fruits", { addedAtMillis: 1 });
+    const orphan = item("o", "produce", { addedAtMillis: 1 });
     orphan.category = "wildcard" as unknown as typeof orphan.category;
     const groups = groupByAisle([orphan, item("m", "misc")], DEFAULT_CATEGORY_ORDER);
     const miscGroup = groups.find((g) => g.category === "misc");

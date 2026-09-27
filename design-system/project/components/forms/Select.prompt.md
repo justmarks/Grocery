@@ -3,8 +3,8 @@ Standard select — matches Input's chrome, with a custom chevron-down.
 ```jsx
 <Field label="Aisle">
   <Select value={cat} onChange={e => setCat(e.target.value)}>
-    <option value="fruits">Fruits</option>
-    <option value="vegetables">Vegetables</option>
+    <option value="produce">Produce</option>
+    <option value="meats">Meats</option>
   </Select>
 </Field>
 ```

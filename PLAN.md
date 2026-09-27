@@ -30,23 +30,23 @@ A complete design system ships in `design-system/` at the repo root — a handof
 
 ### Aisle category colors
 
-The 11 categories (10 from RecipeTracker + `freezer`) each own a color family the shopper learns to scan for. The design system's `tokens/categories.css` defines `--cat-<slug>-bg|mid|fg` for each. The mappings are:
+The 11 categories each own a color family the shopper learns to scan for. The design system's `tokens/categories.css` defines `--cat-<slug>-bg|mid|fg` for each. The mappings are:
 
 | Slug | Family |
 |---|---|
-| `fruits` | berry |
-| `vegetables` | olive |
+| `produce` | olive |
 | `meats` | tomato |
 | `dairy` | sky |
 | `cheeses` | saffron |
 | `baking-and-dry-goods` | cocoa |
-| `bread-and-crackers` | plum |
+| `bread` | plum |
+| `chips-and-crackers` | berry |
 | `beverages` | sage |
 | `paper-goods` | slate |
 | `freezer` | frost *(Grocery-only)* |
 | `misc` | neutral paper |
 
-The design system's `CATEGORIES` array in `components/grocery/categories.js` is in **canonical store-walk order** — fruits → vegetables → meats → dairy → cheeses → baking → bread → beverages → paper → freezer → misc. This is the seeded default value for `households/{id}.categoryOrder` on creation.
+The design system's `CATEGORIES` array in `components/grocery/categories.js` is in **canonical store-walk order** — produce → meats → dairy → cheeses → baking → bread → chips & crackers → beverages → paper → freezer → misc. This is the seeded default value for `households/{id}.categoryOrder` on creation.
 
 ### How the design system gets consumed
 
@@ -190,15 +190,15 @@ households/{householdId}
   members           { uid: { role: "owner"|"editor", joinedAt, displayName } }
   stores            ["Trader Joe's", "Costco", "Target", "QFC"]
   categoryOrder     // canonical store-walk order from design-system CATEGORIES, seeded on create:
-                    // ["fruits","vegetables","meats","dairy","cheeses",
-                    //  "baking-and-dry-goods","bread-and-crackers","beverages",
-                    //  "paper-goods","freezer","misc"]
+                    // ["produce","meats","dairy","cheeses",
+                    //  "baking-and-dry-goods","bread","chips-and-crackers",
+                    //  "beverages","paper-goods","freezer","misc"]
   createdAt, updatedAt
 
 households/{householdId}/items/{itemId}
   text              "Lemons"           // free-text shopper line
   quantity          2                  // number, default 1; imports default to 1 with count in text
-  category          "fruits"           // GROCERY_CATEGORIES | "freezer"
+  category          "produce"          // GROCERY_CATEGORIES
   stores            ["Trader Joe's", "Costco"]
   checked           false
   checkedBy         uid | null
@@ -212,7 +212,7 @@ households/{householdId}/catalog/{catalogItemId}
   text              "Lemons"
   textLower         "lemons"
   searchTokens      ["l","le","lem","lemo","lemon","lemons"]
-  defaultCategory   "fruits"
+  defaultCategory   "produce"
   defaultStores     ["Trader Joe's", "Costco"]
   defaultQuantity   2                  // number
   timesUsed         12

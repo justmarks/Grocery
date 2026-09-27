@@ -1,7 +1,7 @@
 The serif header above each aisle section — color dot, aisle name, optional count.
 
 ```jsx
-<AisleHeader category="vegetables" count={4} />
+<AisleHeader category="produce" count={4} />
 <AisleHeader category="freezer" count={2} />   {/* shows the snowflake */}
 ```
 

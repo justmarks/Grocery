@@ -1,13 +1,13 @@
 import type { HTMLAttributes, ReactNode } from "react";
 
 export type GroceryCategory =
-  | "fruits"
-  | "vegetables"
+  | "produce"
   | "meats"
   | "dairy"
   | "cheeses"
   | "baking-and-dry-goods"
-  | "bread-and-crackers"
+  | "bread"
+  | "chips-and-crackers"
   | "beverages"
   | "paper-goods"
   | "freezer"
