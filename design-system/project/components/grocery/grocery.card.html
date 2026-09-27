@@ -20,7 +20,7 @@
 <div id="root"></div>
 <script type="text/babel">
   const { CategoryTag, AisleHeader, GroceryItemRow, ModeToggle, StoreFilter, IconButton } = window.GroceryDesignSystem_df55be;
-  const CATS = ["fruits","vegetables","meats","dairy","cheeses","baking-and-dry-goods","bread-and-crackers","beverages","paper-goods","freezer","misc"];
+  const CATS = ["produce","meats","dairy","cheeses","baking-and-dry-goods","canned-goods","bread-and-crackers","beverages","paper-goods","freezer","misc"];
   function Card() {
     const [mode, setMode] = React.useState("shop");
     const [store, setStore] = React.useState("all");
@@ -38,7 +38,7 @@
           </div>
         </div>
         <div className="listcard">
-          <AisleHeader category="vegetables" count={2} />
+          <AisleHeader category="produce" count={2} />
           <GroceryItemRow text="Yellow onions (3 medium)" quantity={3} stores={["QFC"]}
             checked={done.a} onToggle={() => setDone(s => ({ ...s, a: !s.a }))}
             trailing={mode === "plan" ? <IconButton icon="pencil" aria-label="Edit" /> : null} />

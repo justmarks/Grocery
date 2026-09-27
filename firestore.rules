@@ -27,19 +27,25 @@ service cloud.firestore {
 
     // Category enum — must stay aligned with @grocery/shared
     // GROCERY_CATEGORIES + the design system CATEGORIES array.
+    // The retired slugs ('fruits', 'vegetables')
+    // stay valid so docs written before the rename can still be
+    // updated (e.g. checked off) without rewriting their category;
+    // the client normalizes them on read.
     function isValidCategory(c) {
       return c in [
-        'fruits',
-        'vegetables',
+        'produce',
         'meats',
         'dairy',
         'cheeses',
         'baking-and-dry-goods',
+        'canned-goods',
         'bread-and-crackers',
         'beverages',
         'paper-goods',
         'freezer',
-        'misc'
+        'misc',
+        'fruits',
+        'vegetables'
       ];
     }
 

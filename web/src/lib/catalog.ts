@@ -28,6 +28,7 @@ import {
 import {
   catalogIdForText,
   catalogSearchTokens,
+  normalizeCategory,
   type CatalogEntry,
   type CatalogEntryWithId,
   type GroceryCategory,
@@ -115,6 +116,7 @@ export function useCatalog(householdId: string | null): UseCatalogResult {
         const next: CatalogEntryWithId[] = snap.docs.map((d) => ({
           id: d.id,
           ...(d.data() as CatalogEntry),
+          defaultCategory: normalizeCategory(d.get("defaultCategory")),
         }));
         setCatalog(next);
         setLoading(false);

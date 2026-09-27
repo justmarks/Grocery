@@ -22,7 +22,11 @@ import {
   where,
   writeBatch,
 } from "firebase/firestore";
-import type { GroceryCategory, Item } from "@grocery/shared";
+import {
+  normalizeCategory,
+  type GroceryCategory,
+  type Item,
+} from "@grocery/shared";
 import { db } from "./firebase";
 import { upsertCatalogEntry } from "./catalog";
 
@@ -112,6 +116,7 @@ export async function updateItem(
     const snap = await getDoc(itemRef(householdId, itemId));
     if (snap.exists()) {
       const d = snap.data() as Item;
+      d.category = normalizeCategory(d.category);
       upsertCatalogEntry(householdId, {
         text: d.text,
         category: d.category,
@@ -279,6 +284,7 @@ export function useItems(householdId: string | null): UseItemsResult {
         const next: ItemWithId[] = snap.docs.map((d) => ({
           id: d.id,
           ...(d.data() as Item),
+          category: normalizeCategory(d.get("category")),
         }));
         setItems(next);
         setLoading(false);

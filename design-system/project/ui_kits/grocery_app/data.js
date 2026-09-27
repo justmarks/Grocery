@@ -15,11 +15,11 @@ const HOUSEHOLD = {
 
 // The shared list. `checked` is the shopping-mode bought state.
 const ITEMS = [
-  { id: "i1", text: "Lemons", qty: 1, category: "fruits", stores: ["Trader Joe's", "QFC"], checked: false },
-  { id: "i2", text: "Bananas", qty: 6, category: "fruits", stores: ["Trader Joe's"], checked: false },
-  { id: "i3", text: "Yellow onions", qty: 3, category: "vegetables", stores: ["QFC"], checked: false },
-  { id: "i4", text: "Romaine hearts", qty: 1, category: "vegetables", stores: ["Trader Joe's", "Costco"], checked: true },
-  { id: "i5", text: "Carrots", qty: 1, category: "vegetables", stores: ["Costco"], checked: false },
+  { id: "i1", text: "Lemons", qty: 1, category: "produce", stores: ["Trader Joe's", "QFC"], checked: false },
+  { id: "i2", text: "Bananas", qty: 6, category: "produce", stores: ["Trader Joe's"], checked: false },
+  { id: "i3", text: "Yellow onions", qty: 3, category: "produce", stores: ["QFC"], checked: false },
+  { id: "i4", text: "Romaine hearts", qty: 1, category: "produce", stores: ["Trader Joe's", "Costco"], checked: true },
+  { id: "i5", text: "Carrots", qty: 1, category: "produce", stores: ["Costco"], checked: false },
   { id: "i6", text: "Ground beef", qty: 2, category: "meats", stores: ["Costco"], checked: false },
   { id: "i7", text: "Chicken thighs", qty: 1, category: "meats", stores: ["Costco"], checked: false },
   { id: "i8", text: "Whole milk", qty: 2, category: "dairy", stores: ["Costco", "QFC"], checked: false },
@@ -37,17 +37,17 @@ const ITEMS = [
 // category + stores. A handful of remembered items for the add-item flow.
 const MEMORY = [
   { text: "Eggs", category: "dairy", stores: ["Costco", "QFC"] },
-  { text: "Avocados", category: "fruits", stores: ["Trader Joe's"] },
+  { text: "Avocados", category: "produce", stores: ["Trader Joe's"] },
   { text: "Olive oil", category: "baking-and-dry-goods", stores: ["Costco"] },
   { text: "Tortillas", category: "bread-and-crackers", stores: ["Trader Joe's"] },
   { text: "Butter", category: "dairy", stores: ["Costco"] },
-  { text: "Spinach", category: "vegetables", stores: ["Trader Joe's", "QFC"] },
+  { text: "Spinach", category: "produce", stores: ["Trader Joe's", "QFC"] },
 ];
 
 // Canonical store-walk order for aisle grouping.
 const CATEGORY_ORDER = [
-  "fruits", "vegetables", "meats", "dairy", "cheeses",
-  "baking-and-dry-goods", "bread-and-crackers", "beverages",
+  "produce", "meats", "dairy", "cheeses",
+  "baking-and-dry-goods", "canned-goods", "bread-and-crackers", "beverages",
   "paper-goods", "freezer", "misc",
 ];
 

@@ -19,6 +19,7 @@ import {
 import {
   DEFAULT_CATEGORY_ORDER,
   DEFAULT_STORES,
+  normalizeCategoryOrder,
   type Household,
 } from "@grocery/shared";
 import { db } from "./firebase";
@@ -127,7 +128,12 @@ export function useHousehold(householdId: string | null): UseHouseholdResult {
         if (!snap.exists()) {
           setHousehold(null);
         } else {
-          setHousehold({ id: snap.id, ...(snap.data() as Household) });
+          const data = snap.data() as Household;
+          setHousehold({
+            id: snap.id,
+            ...data,
+            categoryOrder: normalizeCategoryOrder(data.categoryOrder),
+          });
         }
         setLoading(false);
       },

@@ -25,10 +25,11 @@ Mirrors RecipeTracker so types and conventions can be shared:
 ## Stores & categories
 
 - **Default stores:** Trader Joe's, Costco, Target, QFC — editable per household.
-- **Aisle categories** (the "area"): adopts RecipeTracker's `GROCERY_CATEGORIES` enum so imports land cleanly:
-  `fruits`, `vegetables`, `meats`, `dairy`, `cheeses`, `baking-and-dry-goods`, `bread-and-crackers`, `beverages`, `paper-goods`, `misc`, plus a Grocery-app addition: `freezer`.
+- **Aisle categories** (the "area"):
+  `produce`, `meats`, `dairy`, `cheeses`, `baking-and-dry-goods`, `canned-goods`, `bread-and-crackers`, `beverages`, `paper-goods`, `freezer`, `misc`.
+  Started from RecipeTracker's `GROCERY_CATEGORIES`; RecipeTracker's `fruits` / `vegetables` map to `produce` on import (and when reading older stored data).
 
-Stores and categories are orthogonal: an item has one category but can be carried at multiple stores ("Lemons" → `fruits`, available at Trader Joe's *and* Costco).
+Stores and categories are orthogonal: an item has one category but can be carried at multiple stores ("Lemons" → `produce`, available at Trader Joe's *and* Costco).
 
 ## Getting started
 

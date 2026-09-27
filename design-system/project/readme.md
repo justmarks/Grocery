@@ -88,9 +88,9 @@ dashboard. Cream surfaces, warm near-black ink, a tomato-red accent, and an oliv
   links, active nav), **olive** (the "checked / done / got-it" green — the single most
   important semantic in shopping mode), **saffron** (highlight/warning), **plum**
   (accent, used for the Import affordance). Eleven **aisle categories** each own a color
-  (berry fruits, olive vegetables, tomato meats, sky dairy, saffron cheeses, cocoa
-  baking, plum bread, sage beverages, slate paper-goods, **frost freezer**, neutral
-  misc) so a shopper learns to scan for a section by color. Frost is the one new family
+  (olive produce, tomato meats & fish, sky dairy, saffron cheeses, cocoa baking,
+  berry canned goods, plum bread/chips/crackers, sage beverages, slate paper-goods,
+  **frost freezer**, neutral misc) so a shopper learns to scan for a section by color. Frost is the one new family
   Grocery adds to the inherited palette — for its Grocery-only `freezer` aisle.
 - **Type.** Three families. **Newsreader** (editorial serif) for the wordmark, page
   titles, and aisle/section headers — set at weight 500 with tight tracking, and used
